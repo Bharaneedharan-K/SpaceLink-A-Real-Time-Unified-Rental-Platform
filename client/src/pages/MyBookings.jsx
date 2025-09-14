@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Alert, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import BookingCard from '../components/BookingCard';
+import Modal from 'react-bootstrap/Modal';
 import { api, handleApiError } from '../utils/api';
 
 const MyBookings = () => {
@@ -99,7 +100,19 @@ const MyBookings = () => {
                       {section.label} ({getBookingsByStatus(section.key).length})
                     </h4>
                     {getBookingsByStatus(section.key).map((booking) => (
-                      <BookingCard key={booking._id} booking={booking} />
+                      <div key={booking._id}>
+                        <BookingCard booking={booking} />
+                        <div className="mb-3 text-end">
+                            <Button
+                              size="sm"
+                              variant="info"
+                              as={Link}
+                              to={`/booking/${booking._id}`}
+                            >
+                            View Detail
+                          </Button>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 )

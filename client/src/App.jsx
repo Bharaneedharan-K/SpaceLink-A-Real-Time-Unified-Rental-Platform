@@ -15,6 +15,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import ProtectedRoute from './components/ProtectedRoute'
 import OwnerBookingDetails from './pages/OwnerBookingDetails'
+import BookingDetails from './pages/BookingDetails'
 import './App.css'
 
 function App() {
@@ -75,6 +76,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <OwnerBookingDetails />
+                </ProtectedRoute>
+              }
+            />
+            <Route 
+              path="/booking/:bookingId" 
+              element={
+                <ProtectedRoute>
+                  <BookingDetails />
                 </ProtectedRoute>
               }
             />
