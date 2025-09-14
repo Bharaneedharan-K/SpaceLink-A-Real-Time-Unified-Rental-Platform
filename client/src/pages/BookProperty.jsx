@@ -310,7 +310,7 @@ const BookProperty = () => {
                     size="lg"
                     disabled={submitting || !totalPrice}
                   >
-                    {submitting ? 'Creating Booking...' : `Confirm Booking - ₹${totalPrice.toLocaleString()}`}
+                    {submitting ? 'Creating Booking...' : 'Confirm Booking'}
                   </Button>
                 </div>
               </Form>

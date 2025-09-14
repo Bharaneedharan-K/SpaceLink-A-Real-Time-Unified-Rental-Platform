@@ -126,23 +126,28 @@ router.post('/', authenticateToken, async (req, res) => {
       });
     }
 
-    // Calculate total price (simplified calculation)
+    // Calculate total price based on selected range
     let totalPrice = property.price;
     const timeDiff = to.getTime() - from.getTime();
-    
     switch (bookingType) {
-      case 'hourly':
-        const hours = Math.ceil(timeDiff / (1000 * 3600));
+      case 'hourly': {
+        const hours = Math.ceil(timeDiff / (1000 * 60 * 60));
         totalPrice = property.price * hours;
         break;
-      case 'monthly':
-        const months = Math.ceil(timeDiff / (1000 * 3600 * 24 * 30));
+      }
+      case 'monthly': {
+        // Calculate number of months between from and to
+        const fromMonth = from.getMonth() + from.getFullYear() * 12;
+        const toMonth = to.getMonth() + to.getFullYear() * 12;
+        const months = Math.max(1, toMonth - fromMonth);
         totalPrice = property.price * months;
         break;
-      case 'yearly':
-        const years = Math.ceil(timeDiff / (1000 * 3600 * 24 * 365));
+      }
+      case 'yearly': {
+        const years = Math.max(1, to.getFullYear() - from.getFullYear());
         totalPrice = property.price * years;
         break;
+      }
     }
 
     // Create booking
