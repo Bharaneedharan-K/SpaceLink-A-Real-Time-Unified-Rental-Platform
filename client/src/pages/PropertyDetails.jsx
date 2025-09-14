@@ -180,24 +180,7 @@ const PropertyDetails = () => {
                 </p>
               </div>
 
-              {property.ownerId && (
-                <div className="border-top pt-4">
-                  <h5 className="mb-3">👤 Property Owner</h5>
-                  <div className="d-flex align-items-center">
-                    <div>
-                      <h6 className="mb-1">{property.ownerId.name}</h6>
-                      <p className="text-muted mb-0">
-                        📧 {property.ownerId.email}
-                      </p>
-                      {property.ownerId.contact && (
-                        <p className="text-muted mb-0">
-                          📞 {property.ownerId.contact}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
+              {/* Property Owner details removed as requested */}
             </Card.Body>
           </Card>
         </Col>
@@ -265,25 +248,7 @@ const PropertyDetails = () => {
             </Card.Body>
           </Card>
 
-          {/* Contact Card */}
-          <Card className="mt-4">
-            <Card.Header>
-              <h6 className="mb-0">📞 Contact Information</h6>
-            </Card.Header>
-            <Card.Body>
-              <div className="mb-3">
-                <strong>Property Contact:</strong>
-                <p className="mb-0">{property.contact}</p>
-              </div>
-              {property.ownerId && (
-                <div>
-                  <strong>Owner:</strong>
-                  <p className="mb-1">{property.ownerId.name}</p>
-                  <p className="mb-0 text-muted">{property.ownerId.email}</p>
-                </div>
-              )}
-            </Card.Body>
-          </Card>
+          {/* Contact Information and Property Owner details removed as requested */}
         </Col>
       </Row>
     </Container>
