@@ -25,15 +25,18 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token]);
 
-  // Verify token on app load
+  // Verify token and fetch latest profile on app load
   useEffect(() => {
-    const verifyToken = async () => {
+    const verifyAndFetchProfile = async () => {
       if (token) {
         try {
-          const response = await axios.get('/api/auth/verify');
-          setUser(response.data.user);
+          // Verify token
+          await axios.get('/api/auth/verify');
+          // Fetch latest profile
+          const profileRes = await axios.get('/api/users/profile');
+          setUser(profileRes.data);
         } catch (error) {
-          console.error('Token verification failed:', error);
+          console.error('Token verification or profile fetch failed:', error);
           localStorage.removeItem('token');
           setToken(null);
           setUser(null);
@@ -41,20 +44,19 @@ export const AuthProvider = ({ children }) => {
       }
       setLoading(false);
     };
-
-    verifyToken();
+    verifyAndFetchProfile();
   }, [token]);
 
   const login = async (email, password) => {
     try {
       const response = await axios.post('/api/auth/login', { email, password });
-      const { token: newToken, user } = response.data;
-      
+      const { token: newToken } = response.data;
       localStorage.setItem('token', newToken);
       setToken(newToken);
-      setUser(user);
-      
-      return { success: true, user };
+      // Fetch latest profile after login
+      const profileRes = await axios.get('/api/users/profile');
+      setUser(profileRes.data);
+      return { success: true, user: profileRes.data };
     } catch (error) {
       return { 
         success: false, 
@@ -66,13 +68,13 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const response = await axios.post('/api/auth/register', userData);
-      const { token: newToken, user } = response.data;
-      
+      const { token: newToken } = response.data;
       localStorage.setItem('token', newToken);
       setToken(newToken);
-      setUser(user);
-      
-      return { success: true, user };
+      // Fetch latest profile after registration
+      const profileRes = await axios.get('/api/users/profile');
+      setUser(profileRes.data);
+      return { success: true, user: profileRes.data };
     } catch (error) {
       return { 
         success: false, 
