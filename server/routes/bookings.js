@@ -1,10 +1,79 @@
+// End (close) booking early (property owner only)
+router.patch('/:id/end', authenticateToken, async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id).populate('propertyId');
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+    // Only property owner can end booking
+    if (booking.propertyId.ownerId.toString() !== req.userId) {
+      return res.status(403).json({ message: 'Only property owner can end bookings' });
+    }
+    if (booking.status !== 'active' && booking.status !== 'approved') {
+      return res.status(400).json({ message: 'Only active or approved bookings can be ended' });
+    }
+    booking.status = 'ended';
+    await booking.save();
+    res.json({ message: 'Booking ended successfully', booking });
+  } catch (error) {
+    console.error('End booking error:', error);
+    res.status(500).json({ message: 'Server error while ending booking' });
+  }
+});
+
 const express = require('express');
+const router = express.Router();
 const Booking = require('../models/Booking');
 const Property = require('../models/Property');
 const User = require('../models/User');
 const { authenticateToken } = require('../middleware/auth');
 
-const router = express.Router();
+
+// Approve booking (property owner only)
+router.patch('/:id/approve', authenticateToken, async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id).populate('propertyId');
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+    // Only property owner can approve
+    if (booking.propertyId.ownerId.toString() !== req.userId) {
+      return res.status(403).json({ message: 'Only property owner can approve bookings' });
+    }
+    if (booking.status !== 'pending') {
+      return res.status(400).json({ message: 'Only pending bookings can be approved' });
+    }
+    booking.status = 'approved';
+    await booking.save();
+    res.json({ message: 'Booking approved', booking });
+  } catch (error) {
+    console.error('Approve booking error:', error);
+    res.status(500).json({ message: 'Server error while approving booking' });
+  }
+});
+
+// Reject booking (property owner only)
+router.patch('/:id/reject', authenticateToken, async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id).populate('propertyId');
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+    // Only property owner can reject
+    if (booking.propertyId.ownerId.toString() !== req.userId) {
+      return res.status(403).json({ message: 'Only property owner can reject bookings' });
+    }
+    if (booking.status !== 'pending') {
+      return res.status(400).json({ message: 'Only pending bookings can be rejected' });
+    }
+    booking.status = 'rejected';
+    await booking.save();
+    res.json({ message: 'Booking rejected', booking });
+  } catch (error) {
+    console.error('Reject booking error:', error);
+    res.status(500).json({ message: 'Server error while rejecting booking' });
+  }
+});
 
 // Create new booking (protected)
 router.post('/', authenticateToken, async (req, res) => {
