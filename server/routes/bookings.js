@@ -1,3 +1,11 @@
+
+const express = require('express');
+const router = express.Router();
+const Booking = require('../models/Booking');
+const Property = require('../models/Property');
+const User = require('../models/User');
+const { authenticateToken } = require('../middleware/auth');
+
 // End (close) booking early (property owner only)
 router.patch('/:id/end', authenticateToken, async (req, res) => {
   try {
@@ -20,13 +28,6 @@ router.patch('/:id/end', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Server error while ending booking' });
   }
 });
-
-const express = require('express');
-const router = express.Router();
-const Booking = require('../models/Booking');
-const Property = require('../models/Property');
-const User = require('../models/User');
-const { authenticateToken } = require('../middleware/auth');
 
 
 // Approve booking (property owner only)
@@ -195,15 +196,29 @@ router.get('/my-bookings', authenticateToken, async (req, res) => {
 // Get single booking (protected)
 router.get('/:id', authenticateToken, async (req, res) => {
   try {
-    const booking = await Booking.findOne({ 
-      _id: req.params.id,
-      userId: req.userId 
-    })
-      .populate('propertyId', 'title category address image contact')
-      .populate('userId', 'name email contact');
+    // Find booking and populate property and user info, including all needed fields
+    const booking = await Booking.findById(req.params.id)
+      .populate({
+        path: 'propertyId',
+        select: 'title category address image contact ownerId',
+        populate: { path: 'ownerId', select: 'name email contact' }
+      })
+      .populate({
+        path: 'userId',
+        select: 'name email contact age'
+      });
 
     if (!booking) {
       return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    // Allow access if requester is booking user or property owner
+    const isBookingUser = booking.userId._id.toString() === req.userId;
+    const isPropertyOwner = booking.propertyId.ownerId && booking.propertyId.ownerId._id
+      ? booking.propertyId.ownerId._id.toString() === req.userId
+      : booking.propertyId.ownerId.toString() === req.userId;
+    if (!isBookingUser && !isPropertyOwner) {
+      return res.status(403).json({ message: 'Access denied' });
     }
 
     // Update status if needed

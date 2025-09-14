@@ -14,6 +14,7 @@ import Profile from './pages/Profile'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import ProtectedRoute from './components/ProtectedRoute'
+import OwnerBookingDetails from './pages/OwnerBookingDetails'
 import './App.css'
 
 function App() {
@@ -69,7 +70,15 @@ function App() {
                   </ProtectedRoute>
                 } 
               />
-            </Routes>
+            <Route 
+              path="/owner-booking/:bookingId" 
+              element={
+                <ProtectedRoute>
+                  <OwnerBookingDetails />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
           </main>
           <Footer />
         </div>

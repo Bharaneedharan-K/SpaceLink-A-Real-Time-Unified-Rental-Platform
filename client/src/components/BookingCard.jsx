@@ -5,8 +5,16 @@ import { formatDate, formatPrice, getImageUrl } from '../utils/api';
 const BookingCard = ({ booking }) => {
   const getStatusBadgeClass = (status) => {
     switch (status) {
+      case 'pending':
+        return 'status-badge status-pending';
+      case 'approved':
+        return 'status-badge status-approved';
       case 'active':
         return 'status-badge status-active';
+      case 'rejected':
+        return 'status-badge status-rejected';
+      case 'ended':
+        return 'status-badge status-ended';
       case 'expired':
         return 'status-badge status-expired';
       case 'cancelled':

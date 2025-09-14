@@ -42,6 +42,9 @@ export const api = {
     getById: (id) => axios.get(`/api/bookings/${id}`),
     cancel: (id) => axios.patch(`/api/bookings/${id}/cancel`),
     checkAvailability: (data) => axios.post('/api/bookings/check-availability', data),
+    approve: (id) => axios.patch(`/api/bookings/${id}/approve`),
+    reject: (id) => axios.patch(`/api/bookings/${id}/reject`),
+    end: (id) => axios.patch(`/api/bookings/${id}/end`),
   },
 };
 

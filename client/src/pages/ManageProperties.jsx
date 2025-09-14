@@ -8,6 +8,8 @@ const ManageProperties = () => {
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [bookings, setBookings] = useState([]);
   const [showBookingsModal, setShowBookingsModal] = useState(false);
+  const [showBookingDetailModal, setShowBookingDetailModal] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editFormData, setEditFormData] = useState({});
   const [editImagePreviews, setEditImagePreviews] = useState([]);
@@ -56,8 +58,33 @@ const ManageProperties = () => {
     try {
       setSelectedProperty(property);
       const response = await api.properties.getPropertyBookings(property._id);
-      setBookings(response.data);
-      setShowBookingsModal(true);
+  setBookings(response.data);
+  setShowBookingsModal(true);
+  const openBookingDetailModal = (booking) => {
+    setSelectedBooking(booking);
+    setShowBookingDetailModal(true);
+  };
+
+  const handleOwnerBookingAction = async (action, bookingId) => {
+    try {
+      if (action === 'approve') {
+        await api.bookings.approve(bookingId);
+        setSuccess('Booking approved');
+      } else if (action === 'reject') {
+        await api.bookings.reject(bookingId);
+        setSuccess('Booking rejected');
+      } else if (action === 'end') {
+        await api.bookings.end(bookingId);
+        setSuccess('Booking ended');
+      }
+      // Refresh bookings and details
+      if (selectedProperty) viewPropertyBookings(selectedProperty);
+      if (selectedBooking) setSelectedBooking(null);
+      setShowBookingDetailModal(false);
+    } catch (error) {
+      setError(handleApiError(error));
+    }
+  };
     } catch (error) {
       setError(handleApiError(error));
     }
@@ -450,7 +477,13 @@ const ManageProperties = () => {
                   <Card.Body>
                     <div className="d-flex justify-content-between align-items-start mb-2">
                       <h6 className="mb-0">👤 {booking.userId?.name}</h6>
-                      <Badge bg={booking.status === 'active' ? 'success' : 'danger'}>
+                      <Badge bg={
+                        booking.status === 'pending' ? 'warning'
+                        : booking.status === 'approved' ? 'success'
+                        : booking.status === 'rejected' ? 'danger'
+                        : booking.status === 'ended' ? 'secondary'
+                        : 'info'
+                      }>
                         {booking.status.toUpperCase()}
                       </Badge>
                     </div>
@@ -479,11 +512,64 @@ const ManageProperties = () => {
                         <small className="text-muted">Notes: {booking.notes}</small>
                       </div>
                     )}
+                    <div className="mt-3 d-flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="info"
+                        as={Link}
+                        to={`/owner-booking/${booking._id}`}
+                      >
+                        View
+                      </Button>
+                    </div>
                   </Card.Body>
                 </Card>
               ))}
             </div>
           )}
+      {/* Booking Detail Modal */}
+      <Modal show={showBookingDetailModal} onHide={() => setShowBookingDetailModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>👤 Booking & User Details</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedBooking ? (
+            <>
+              <h5>User Information</h5>
+              <p><strong>Name:</strong> {selectedBooking.userId?.name}</p>
+              <p><strong>Email:</strong> {selectedBooking.userId?.email}</p>
+              <p><strong>Contact:</strong> {selectedBooking.userId?.contact}</p>
+              <p><strong>Age:</strong> {selectedBooking.userId?.age || 'N/A'}</p>
+              <hr />
+              <h5>Booking Information</h5>
+              <p><strong>Status:</strong> {selectedBooking.status}</p>
+              <p><strong>From:</strong> {formatDate(selectedBooking.fromDate)}</p>
+              <p><strong>To:</strong> {formatDate(selectedBooking.toDate)}</p>
+              <p><strong>Total Price:</strong> ₹{selectedBooking.totalPrice?.toLocaleString()}</p>
+              <p><strong>Notes:</strong> {selectedBooking.notes || 'None'}</p>
+              <div className="mt-3 d-flex gap-2">
+                {selectedBooking.status === 'pending' && (
+                  <>
+                    <Button size="sm" variant="success" onClick={() => handleOwnerBookingAction('approve', selectedBooking._id)}>Approve</Button>
+                    <Button size="sm" variant="danger" onClick={() => handleOwnerBookingAction('reject', selectedBooking._id)}>Reject</Button>
+                  </>
+                )}
+                {(selectedBooking.status === 'active' || selectedBooking.status === 'approved') && (
+                  <Button size="sm" variant="secondary" onClick={() => handleOwnerBookingAction('end', selectedBooking._id)}>End Booking</Button>
+                )}
+              </div>
+              {error && <Alert variant="danger" className="mt-3">{error}</Alert>}
+            </>
+          ) : (
+            <p>No booking selected.</p>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowBookingDetailModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowBookingsModal(false)}>

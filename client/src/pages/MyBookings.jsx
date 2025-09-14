@@ -29,6 +29,17 @@ const MyBookings = () => {
     return bookings.filter(booking => booking.status === status);
   };
 
+  // List of all statuses to show
+  const statusSections = [
+    { key: 'pending', label: '🟡 Pending Bookings', color: 'warning' },
+    { key: 'approved', label: '🟢 Approved Bookings', color: 'success' },
+    { key: 'active', label: '🟢 Active Bookings', color: 'success' },
+    { key: 'rejected', label: '🔴 Rejected Bookings', color: 'danger' },
+    { key: 'ended', label: '⚫ Ended Bookings', color: 'secondary' },
+    { key: 'expired', label: '🔴 Expired Bookings', color: 'danger' },
+    { key: 'cancelled', label: '⚫ Cancelled Bookings', color: 'secondary' },
+  ];
+
   if (loading) {
     return (
       <Container className="py-4">
@@ -81,43 +92,18 @@ const MyBookings = () => {
             </Card>
           ) : (
             <>
-              {/* Active Bookings */}
-              {getBookingsByStatus('active').length > 0 && (
-                <div className="mb-5">
-                  <h4 className="mb-3">
-                    🟢 Active Bookings ({getBookingsByStatus('active').length})
-                  </h4>
-                  {getBookingsByStatus('active').map((booking) => (
-                    <BookingCard key={booking._id} booking={booking} />
-                  ))}
-                </div>
-              )}
-
-              {/* Expired Bookings */}
-              {getBookingsByStatus('expired').length > 0 && (
-                <div className="mb-5">
-                  <h4 className="mb-3">
-                    🔴 Expired Bookings ({getBookingsByStatus('expired').length})
-                  </h4>
-                  {getBookingsByStatus('expired').map((booking) => (
-                    <BookingCard key={booking._id} booking={booking} />
-                  ))}
-                </div>
-              )}
-
-              {/* Cancelled Bookings */}
-              {getBookingsByStatus('cancelled').length > 0 && (
-                <div className="mb-5">
-                  <h4 className="mb-3">
-                    ⚫ Cancelled Bookings ({getBookingsByStatus('cancelled').length})
-                  </h4>
-                  {getBookingsByStatus('cancelled').map((booking) => (
-                    <BookingCard key={booking._id} booking={booking} />
-                  ))}
-                </div>
-              )}
-
-              {/* Booking Summary */}
+              {statusSections.map(section => (
+                getBookingsByStatus(section.key).length > 0 && (
+                  <div className="mb-5" key={section.key}>
+                    <h4 className={`mb-3 text-${section.color}`}>
+                      {section.label} ({getBookingsByStatus(section.key).length})
+                    </h4>
+                    {getBookingsByStatus(section.key).map((booking) => (
+                      <BookingCard key={booking._id} booking={booking} />
+                    ))}
+                  </div>
+                )
+              ))}
               <Card className="mt-4">
                 <Card.Header>
                   <h5 className="mb-0">📊 Booking Summary</h5>
