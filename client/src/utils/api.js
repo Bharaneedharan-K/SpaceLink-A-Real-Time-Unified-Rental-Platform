@@ -32,7 +32,8 @@ export const api = {
     disable: (id) => axios.patch(`/api/properties/${id}/disable`),
     enable: (id) => axios.patch(`/api/properties/${id}/enable`),
     getUserProperties: () => axios.get('/api/properties/user/my-properties'),
-    getPropertyBookings: (id) => axios.get(`/api/properties/${id}/bookings`),
+  getPropertyBookings: (id) => axios.get(`/api/properties/${id}/bookings`),
+  getBookedDates: (id) => axios.get(`/api/properties/${id}/booked-dates`),
   },
   
   // Booking endpoints
