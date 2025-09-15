@@ -1,9 +1,25 @@
+// Get booked date ranges for a property
+// (Booking require and endpoint will be placed after router is declared)
 const express = require('express');
 const Property = require('../models/Property');
 const Booking = require('../models/Booking');
 const { authenticateToken, optionalAuth } = require('../middleware/auth');
 
 const router = express.Router();
+
+// Get booked date ranges for a property
+router.get('/:id/booked-dates', async (req, res) => {
+  try {
+    const bookings = await Booking.find({
+      propertyId: req.params.id,
+      status: { $in: ['active', 'approved'] }
+    }, 'fromDate toDate');
+    const ranges = bookings.map(b => ({ from: b.fromDate, to: b.toDate }));
+    res.json({ success: true, data: ranges });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
 
 // Get all properties with filters (exclude user's own properties if authenticated)
 router.get('/', optionalAuth, async (req, res) => {
