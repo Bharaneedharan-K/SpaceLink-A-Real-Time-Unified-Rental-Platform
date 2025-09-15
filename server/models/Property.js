@@ -81,6 +81,23 @@ const propertySchema = new mongoose.Schema({
   availability: {
     type: Boolean,
     default: true
+  },
+  verificationStatus: {
+    type: String,
+    enum: ['pending', 'verified', 'rejected'],
+    default: 'pending'
+  },
+  verificationLog: [{
+    status: String,
+    date: Date,
+    adminId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    note: String
+  }],
+  ownerProof: {
+    type: String // base64 or URL (PDF/image)
+  },
+  propertyProof: {
+    type: String // base64 or URL (PDF/image)
   }
 }, {
   timestamps: true

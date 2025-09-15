@@ -42,6 +42,11 @@ const userSchema = new mongoose.Schema({
   profileComplete: {
     type: Boolean,
     default: false
+  },
+  role: {
+    type: String,
+    enum: ['user', 'owner', 'admin'],
+    default: 'user'
   }
 }, {
   timestamps: true

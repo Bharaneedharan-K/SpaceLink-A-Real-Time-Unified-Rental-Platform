@@ -25,6 +25,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/properties', propertyRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/users', userRoutes);
+const adminRoutes = require('./routes/admin');
+app.use('/api/admin', adminRoutes);
 app.use('/api/notifications', notificationRoutes);
 
 // Test route
@@ -37,7 +39,11 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/spacelink
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-.then(() => console.log('Connected to MongoDB'))
+.then(async () => {
+  console.log('Connected to MongoDB');
+  const ensureAdmin = require('./utils/ensureAdmin');
+  await ensureAdmin();
+})
 .catch((err) => console.error('MongoDB connection error:', err));
 
 const PORT = process.env.PORT || 5000;
