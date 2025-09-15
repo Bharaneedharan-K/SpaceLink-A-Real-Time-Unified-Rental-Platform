@@ -46,6 +46,12 @@ export const api = {
     reject: (id) => axios.patch(`/api/bookings/${id}/reject`),
     end: (id) => axios.patch(`/api/bookings/${id}/end`),
   },
+  // Notification endpoints
+  notifications: {
+    getAll: () => axios.get('/api/notifications'),
+    markAsRead: (id) => axios.patch(`/api/notifications/${id}/read`),
+    delete: (id) => axios.delete(`/api/notifications/${id}`),
+  },
 };
 
 // Utility functions
