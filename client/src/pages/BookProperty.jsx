@@ -3,6 +3,7 @@ import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap'
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api, handleApiError, formatPrice, getImageUrl } from '../utils/api';
+import CustomCalendar from '../components/CustomCalendar';
 
 const BookProperty = () => {
   const { propertyId } = useParams();
@@ -10,6 +11,7 @@ const BookProperty = () => {
   const navigate = useNavigate();
   
   const [property, setProperty] = useState(null);
+  const [bookedRanges, setBookedRanges] = useState([]);
   const [formData, setFormData] = useState({
     fromDate: '',
     toDate: '',
@@ -24,7 +26,17 @@ const BookProperty = () => {
   useEffect(() => {
     fetchProperty();
     checkProfileComplete();
+    fetchBookedDates();
   }, [propertyId]);
+
+  const fetchBookedDates = async () => {
+    try {
+      const res = await api.properties.getBookedDates(propertyId);
+      setBookedRanges(res.data.data || []);
+    } catch (err) {
+      // Ignore error, just show all dates
+    }
+  };
 
   const fetchProperty = async () => {
     try {
@@ -227,29 +239,22 @@ const BookProperty = () => {
 
               <Form onSubmit={handleSubmit}>
                 <Row>
-                  <Col md={6}>
+                  <Col md={12}>
                     <Form.Group className="mb-3">
-                      <Form.Label>Start Date *</Form.Label>
-                      <Form.Control
-                        type="date"
-                        name="fromDate"
-                        value={formData.fromDate}
-                        onChange={handleInputChange}
-                        min={new Date().toISOString().split('T')[0]}
-                        required
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>End Date *</Form.Label>
-                      <Form.Control
-                        type="date"
-                        name="toDate"
-                        value={formData.toDate}
-                        onChange={handleInputChange}
-                        min={formData.fromDate || new Date().toISOString().split('T')[0]}
-                        required
+                      <Form.Label>Select Booking Dates *</Form.Label>
+                      <CustomCalendar
+                        bookedRanges={bookedRanges}
+                        value={formData.fromDate && formData.toDate ? [new Date(formData.fromDate), new Date(formData.toDate)] : null}
+                        onChange={range => {
+                          if (Array.isArray(range)) {
+                            setFormData({
+                              ...formData,
+                              fromDate: range[0].toISOString().split('T')[0],
+                              toDate: range[1].toISOString().split('T')[0]
+                            });
+                          }
+                        }}
+                        minDate={new Date()}
                       />
                     </Form.Group>
                   </Col>
