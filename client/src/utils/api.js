@@ -53,6 +53,12 @@ export const api = {
     markAsRead: (id) => axios.patch(`/api/notifications/${id}/read`),
     delete: (id) => axios.delete(`/api/notifications/${id}`),
   },
+  // Admin endpoints
+  admin: {
+    getDashboard: () => axios.get('/api/admin/dashboard'),
+    getPendingProperties: () => axios.get('/api/admin/properties/pending'),
+    verifyProperty: (id, status, note) => axios.patch(`/api/admin/properties/${id}/verify`, { status, note }),
+  },
 };
 
 // Utility functions

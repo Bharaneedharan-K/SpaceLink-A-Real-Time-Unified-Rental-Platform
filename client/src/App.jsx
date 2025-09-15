@@ -17,6 +17,8 @@ import Register from './pages/Register'
 import ProtectedRoute from './components/ProtectedRoute'
 import OwnerBookingDetails from './pages/OwnerBookingDetails'
 import BookingDetails from './pages/BookingDetails'
+import AdminDashboard from './pages/AdminDashboard'
+import AdminVerifyProperties from './pages/AdminVerifyProperties'
 import './App.css'
 
 function App() {
@@ -88,6 +90,14 @@ function App() {
                     <BookingDetails />
                   </ProtectedRoute>
                 }
+              />
+              <Route 
+                path="/admin/dashboard" 
+                element={<AdminDashboard />} 
+              />
+              <Route 
+                path="/admin/verify-properties" 
+                element={<AdminVerifyProperties />} 
               />
             </Routes>
             </main>

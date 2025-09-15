@@ -22,16 +22,28 @@ const Navbar = () => {
     <>
       <BootstrapNavbar bg="dark" variant="dark" expand="lg" sticky="top">
         <Container>
-          <BootstrapNavbar.Brand as={Link} to="/">
+          <BootstrapNavbar.Brand as={Link} to={isAuthenticated && user?.role === 'admin' ? '/admin/dashboard' : '/'}>
             🏠 SpaceLink
           </BootstrapNavbar.Brand>
           <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
           <BootstrapNavbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
-              <Nav.Link as={Link} to="/find-property">
-                Find Property
-              </Nav.Link>
-              {isAuthenticated && (
+              {(!isAuthenticated || user?.role !== 'admin') && (
+                <Nav.Link as={Link} to="/find-property">
+                  Find Property
+                </Nav.Link>
+              )}
+              {isAuthenticated && user?.role === 'admin' && (
+                <>
+                  <Nav.Link as={Link} to="/admin/dashboard">
+                    Dashboard
+                  </Nav.Link>
+                  <Nav.Link as={Link} to="/admin/verify-properties">
+                    Verify Properties
+                  </Nav.Link>
+                </>
+              )}
+              {isAuthenticated && user?.role !== 'admin' && (
                 <>
                   <Nav.Link as={Link} to="/my-bookings">
                     My Bookings
