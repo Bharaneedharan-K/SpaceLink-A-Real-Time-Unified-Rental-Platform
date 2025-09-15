@@ -4,6 +4,7 @@ const router = express.Router();
 const Booking = require('../models/Booking');
 const Property = require('../models/Property');
 const User = require('../models/User');
+const Notification = require('../models/Notification');
 const { authenticateToken } = require('../middleware/auth');
 
 // End (close) booking early (property owner only)
@@ -22,6 +23,12 @@ router.patch('/:id/end', authenticateToken, async (req, res) => {
     }
     booking.status = 'ended';
     await booking.save();
+    // Notify user that booking was ended by owner
+    await Notification.create({
+      userId: booking.userId,
+      type: 'booking',
+      message: `Your booking for ${booking.propertyId.title} was ended by the owner.`,
+    });
     res.json({ message: 'Booking ended successfully', booking });
   } catch (error) {
     console.error('End booking error:', error);
@@ -46,6 +53,12 @@ router.patch('/:id/approve', authenticateToken, async (req, res) => {
     }
     booking.status = 'approved';
     await booking.save();
+    // Notify user that booking was approved
+    await Notification.create({
+      userId: booking.userId,
+      type: 'booking',
+      message: `Your booking for ${booking.propertyId.title} was approved by the owner.`,
+    });
     res.json({ message: 'Booking approved', booking });
   } catch (error) {
     console.error('Approve booking error:', error);
@@ -69,6 +82,12 @@ router.patch('/:id/reject', authenticateToken, async (req, res) => {
     }
     booking.status = 'rejected';
     await booking.save();
+    // Notify user that booking was rejected
+    await Notification.create({
+      userId: booking.userId,
+      type: 'booking',
+      message: `Your booking for ${booking.propertyId.title} was rejected by the owner.`,
+    });
     res.json({ message: 'Booking rejected', booking });
   } catch (error) {
     console.error('Reject booking error:', error);
@@ -163,10 +182,17 @@ router.post('/', authenticateToken, async (req, res) => {
 
     await booking.save();
     await booking.populate([
-      { path: 'propertyId', select: 'title category address image' },
+      { path: 'propertyId', select: 'title category address image ownerId' },
       { path: 'userId', select: 'name email contact' }
     ]);
-
+    // Notify property owner of new booking
+    if (booking.propertyId.ownerId) {
+      await Notification.create({
+        userId: booking.propertyId.ownerId,
+        type: 'booking',
+        message: `New booking request for ${booking.propertyId.title} by ${user.name}.`,
+      });
+    }
     res.status(201).json({
       message: 'Booking created successfully',
       booking
