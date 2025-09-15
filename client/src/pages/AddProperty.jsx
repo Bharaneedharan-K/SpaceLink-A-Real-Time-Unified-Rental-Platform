@@ -19,9 +19,55 @@ const AddProperty = () => {
       pincode: ''
     },
     contact: '',
-    images: [] // Changed from single image to multiple images
+  images: [], // Changed from single image to multiple images
+  ownerProof: null, // PDF or image
+  propertyProof: null // PDF or image
   });
   const [imagePreviews, setImagePreviews] = useState([]); // Changed to array for multiple previews
+  const [ownerProofPreview, setOwnerProofPreview] = useState(null);
+  const [propertyProofPreview, setPropertyProofPreview] = useState(null);
+  // Utility to convert file to base64
+  const convertFileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+  const handleOwnerProofChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!(file.type.startsWith('image/') || file.type === 'application/pdf')) {
+      setError('Owner proof must be an image or PDF');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Owner proof file is too large (max 5MB)');
+      return;
+    }
+    const base64 = await convertFileToBase64(file);
+    setFormData({ ...formData, ownerProof: base64 });
+    setOwnerProofPreview({ name: file.name, src: base64, type: file.type });
+    setError('');
+  };
+
+  const handlePropertyProofChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!(file.type.startsWith('image/') || file.type === 'application/pdf')) {
+      setError('Property proof must be an image or PDF');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Property proof file is too large (max 5MB)');
+      return;
+    }
+    const base64 = await convertFileToBase64(file);
+    setFormData({ ...formData, propertyProof: base64 });
+    setPropertyProofPreview({ name: file.name, src: base64, type: file.type });
+    setError('');
+  };
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -168,8 +214,17 @@ const AddProperty = () => {
       return false;
     }
 
+
     if (formData.images.length === 0) {
       setError('Please upload at least one property image');
+      return false;
+    }
+    if (!formData.ownerProof) {
+      setError('Please upload owner proof (Aadhar or PAN card)');
+      return false;
+    }
+    if (!formData.propertyProof) {
+      setError('Please upload property proof (Electricity Bill, Water Bill, Tax Receipt, or Lease Agreement)');
       return false;
     }
 
@@ -415,7 +470,6 @@ const AddProperty = () => {
                   <Form.Text className="text-muted">
                     Upload multiple property images. Maximum file size: 5MB per image.
                   </Form.Text>
-                  
                   {imagePreviews.length > 0 && (
                     <div className="mt-3">
                       <h6>Image Previews:</h6>
@@ -458,6 +512,44 @@ const AddProperty = () => {
                           {imagePreviews.length < 5 && ' • You can upload more images'}
                         </small>
                       </div>
+                    </div>
+                  )}
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label>Owner Proof * (Aadhar Card or PAN Card, PDF/Image)</Form.Label>
+                  <Form.Control
+                    type="file"
+                    accept="image/*,application/pdf"
+                    onChange={handleOwnerProofChange}
+                  />
+                  {ownerProofPreview && (
+                    <div className="mt-2">
+                      <strong>Uploaded:</strong> {ownerProofPreview.name}
+                      {ownerProofPreview.type.startsWith('image/') ? (
+                        <img src={ownerProofPreview.src} alt="Owner Proof Preview" style={{ maxWidth: '120px', maxHeight: '120px', marginLeft: '10px', borderRadius: '6px', border: '1px solid #ccc' }} />
+                      ) : (
+                        <span className="ms-2 text-muted">[PDF]</span>
+                      )}
+                    </div>
+                  )}
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label>Property Proof * (Electricity Bill or Water Bill or Tax Receipt or Lease Agreement - PDF/Image)</Form.Label>
+                  <Form.Control
+                    type="file"
+                    accept="image/*,application/pdf"
+                    onChange={handlePropertyProofChange}
+                  />
+                  {propertyProofPreview && (
+                    <div className="mt-2">
+                      <strong>Uploaded:</strong> {propertyProofPreview.name}
+                      {propertyProofPreview.type.startsWith('image/') ? (
+                        <img src={propertyProofPreview.src} alt="Property Proof Preview" style={{ maxWidth: '120px', maxHeight: '120px', marginLeft: '10px', borderRadius: '6px', border: '1px solid #ccc' }} />
+                      ) : (
+                        <span className="ms-2 text-muted">[PDF]</span>
+                      )}
                     </div>
                   )}
                 </Form.Group>
