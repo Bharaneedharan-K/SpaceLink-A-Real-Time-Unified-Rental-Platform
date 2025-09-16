@@ -5,6 +5,8 @@ import { NotificationProvider } from './context/NotificationContext'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import Home from './pages/Home'
+import { useAuth } from './context/AuthContext'
+import { Navigate } from 'react-router-dom'
 import FindProperty from './pages/FindProperty'
 import PropertyDetails from './pages/PropertyDetails'
 import BookProperty from './pages/BookProperty'
@@ -22,6 +24,15 @@ import AdminVerifyProperties from './pages/AdminVerifyProperties'
 import './App.css'
 
 function App() {
+  // Custom HomeRoute: redirect admin to dashboard
+  const HomeRoute = () => {
+    const { user, loading } = useAuth();
+    if (loading) return null;
+    if (user && user.role === 'admin') {
+      return <Navigate to="/admin/dashboard" replace />;
+    }
+    return <Home />;
+  };
   return (
     <AuthProvider>
       <NotificationProvider>
@@ -30,7 +41,7 @@ function App() {
             <Navbar />
             <main className="flex-grow-1">
               <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/" element={<HomeRoute />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/find-property" element={<FindProperty />} />
