@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { Container, Row, Col, Card, Spinner, Alert } from 'react-bootstrap';
 import { api } from '../utils/api';
 
@@ -6,10 +7,13 @@ const AdminDashboard = () => {
   const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const auth = useAuth();
 
   useEffect(() => {
-    fetchMetrics();
-  }, []);
+    if (!auth.loading && auth.token) {
+      fetchMetrics();
+    }
+  }, [auth.loading, auth.token]);
 
   const fetchMetrics = async () => {
     setLoading(true);

@@ -536,7 +536,7 @@ const AddProperty = () => {
                 </Form.Group>
 
                 <Form.Group className="mb-3">
-                  <Form.Label>Property Proof * (Electricity Bill or Water Bill or Tax Receipt or Lease Agreement - PDF/Image)</Form.Label>
+                  <Form.Label>Property Proof * (Electricity Bill, Water Bill, Tax Receipt, Lease Agreement - PDF/Image)</Form.Label>
                   <Form.Control
                     type="file"
                     accept="image/*,application/pdf"

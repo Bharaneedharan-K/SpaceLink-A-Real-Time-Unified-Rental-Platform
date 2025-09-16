@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Container, Row, Col, Card, Button, Spinner, Alert, Modal, Form } from 'react-bootstrap';
 import { api } from '../utils/api';
+import { useAuth } from '../context/AuthContext';
 
 const AdminVerifyProperties = () => {
   const [properties, setProperties] = useState([]);
@@ -11,10 +12,16 @@ const AdminVerifyProperties = () => {
   const [verifyStatus, setVerifyStatus] = useState('verified');
   const [verifyNote, setVerifyNote] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  // For fullscreen preview
+  const [fullscreenDoc, setFullscreenDoc] = useState({ show: false, src: '', type: '', title: '' });
+  // Auth context
+  const auth = useAuth();
 
   useEffect(() => {
-    fetchPending();
-  }, []);
+    if (!auth.loading && auth.token) {
+      fetchPending();
+    }
+  }, [auth.loading, auth.token]);
 
   const fetchPending = async () => {
     setLoading(true);
@@ -79,26 +86,89 @@ const AdminVerifyProperties = () => {
             <>
               <h5>{selected.title}</h5>
               <p><strong>Description:</strong> {selected.description}</p>
-              <p><strong>Owner:</strong> {selected.ownerId?.name} ({selected.ownerId?.email})</p>
+              <p><strong>Category:</strong> {selected.category}</p>
+              {selected.subtype && <p><strong>Subtype:</strong> {selected.subtype}</p>}
+              <p><strong>Price:</strong> ₹{selected.price}</p>
+              <p><strong>Size:</strong> {selected.size}</p>
+              <p><strong>Rent Types:</strong> {selected.rentType && selected.rentType.join(', ')}</p>
+              <p><strong>Address:</strong> {selected.address?.street}, {selected.address?.city}, {selected.address?.state} - {selected.address?.pincode}</p>
               <p><strong>Contact:</strong> {selected.contact}</p>
+              <p><strong>Owner:</strong> {selected.ownerId?.name} ({selected.ownerId?.email})</p>
+              <p><strong>Images:</strong></p>
+              <Row className="mb-3">
+                {selected.images && selected.images.map((img, idx) => (
+                  <Col key={idx} md={4} className="mb-2">
+                    <img src={img} alt={`Property ${idx + 1}`} style={{ maxWidth: '100%', maxHeight: '120px', border: '1px solid #ccc', borderRadius: '6px' }} />
+                  </Col>
+                ))}
+              </Row>
               <p><strong>Proof Documents:</strong></p>
               <Row>
                 <Col md={6}>
                   <strong>Owner Proof:</strong><br />
                   {selected.ownerProof && selected.ownerProof.startsWith('data:application/pdf') ? (
-                    <a href={selected.ownerProof} target="_blank" rel="noopener noreferrer">View PDF</a>
+                    <>
+                      <iframe
+                        src={selected.ownerProof}
+                        title="Owner Proof PDF"
+                        style={{ width: '100%', height: '180px', border: '1px solid #ccc', borderRadius: '6px' }}
+                      />
+                      <Button size="sm" variant="secondary" className="mt-2" onClick={() => setFullscreenDoc({ show: true, src: selected.ownerProof, type: 'pdf', title: 'Owner Proof' })}>
+                        View Fullscreen
+                      </Button>
+                    </>
                   ) : selected.ownerProof ? (
-                    <img src={selected.ownerProof} alt="Owner Proof" style={{ maxWidth: '100%', maxHeight: '180px', border: '1px solid #ccc', borderRadius: '6px' }} />
+                    <>
+                      <img src={selected.ownerProof} alt="Owner Proof" style={{ maxWidth: '100%', maxHeight: '180px', border: '1px solid #ccc', borderRadius: '6px' }} />
+                      <Button size="sm" variant="secondary" className="mt-2" onClick={() => setFullscreenDoc({ show: true, src: selected.ownerProof, type: 'image', title: 'Owner Proof' })}>
+                        View Fullscreen
+                      </Button>
+                    </>
                   ) : 'Not uploaded'}
                 </Col>
                 <Col md={6}>
                   <strong>Property Proof:</strong><br />
                   {selected.propertyProof && selected.propertyProof.startsWith('data:application/pdf') ? (
-                    <a href={selected.propertyProof} target="_blank" rel="noopener noreferrer">View PDF</a>
+                    <>
+                      <iframe
+                        src={selected.propertyProof}
+                        title="Property Proof PDF"
+                        style={{ width: '100%', height: '180px', border: '1px solid #ccc', borderRadius: '6px' }}
+                      />
+                      <Button size="sm" variant="secondary" className="mt-2" onClick={() => setFullscreenDoc({ show: true, src: selected.propertyProof, type: 'pdf', title: 'Property Proof' })}>
+                        View Fullscreen
+                      </Button>
+                    </>
                   ) : selected.propertyProof ? (
-                    <img src={selected.propertyProof} alt="Property Proof" style={{ maxWidth: '100%', maxHeight: '180px', border: '1px solid #ccc', borderRadius: '6px' }} />
+                    <>
+                      <img src={selected.propertyProof} alt="Property Proof" style={{ maxWidth: '100%', maxHeight: '180px', border: '1px solid #ccc', borderRadius: '6px' }} />
+                      <Button size="sm" variant="secondary" className="mt-2" onClick={() => setFullscreenDoc({ show: true, src: selected.propertyProof, type: 'image', title: 'Property Proof' })}>
+                        View Fullscreen
+                      </Button>
+                    </>
                   ) : 'Not uploaded'}
                 </Col>
+      {/* Fullscreen Modal for Document/Image Preview */}
+      <Modal show={fullscreenDoc.show} onHide={() => setFullscreenDoc({ show: false, src: '', type: '', title: '' })} size="xl" centered>
+        <Modal.Header closeButton>
+          <Modal.Title>{fullscreenDoc.title} - Fullscreen Preview</Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa' }}>
+          {fullscreenDoc.type === 'pdf' ? (
+            <iframe
+              src={fullscreenDoc.src}
+              title="PDF Preview"
+              style={{ width: '100%', height: '75vh', border: '1px solid #ccc', borderRadius: '8px', background: '#fff' }}
+            />
+          ) : fullscreenDoc.type === 'image' ? (
+            <img
+              src={fullscreenDoc.src}
+              alt="Document Preview"
+              style={{ maxWidth: '100%', maxHeight: '75vh', border: '1px solid #ccc', borderRadius: '8px', background: '#fff' }}
+            />
+          ) : null}
+        </Modal.Body>
+      </Modal>
               </Row>
               <Form className="mt-4">
                 <Form.Group className="mb-3">
