@@ -55,6 +55,16 @@ router.get('/', optionalAuth, async (req, res) => {
       if (maxPrice) filter.price.$lte = Number(maxPrice);
     }
 
+    // Only show verified properties to non-owners/non-admins
+    let user = null;
+    if (req.userId) {
+      const User = require('../models/User');
+      user = await User.findById(req.userId);
+    }
+    if (!user || (user.role !== 'admin' && user.role !== 'owner')) {
+      filter.verificationStatus = 'verified';
+    }
+
     // Get properties
     let properties = await Property.find(filter)
       .populate('ownerId', 'name email contact')
@@ -65,19 +75,16 @@ router.get('/', optionalAuth, async (req, res) => {
     // Filter by availability if date range is provided
     if (fromDate && toDate) {
       const availableProperties = [];
-      
       for (const property of properties) {
         const hasConflict = await Booking.checkConflict(
           property._id,
           new Date(fromDate),
           new Date(toDate)
         );
-        
         if (!hasConflict) {
           availableProperties.push(property);
         }
       }
-      
       properties = availableProperties;
     }
 
@@ -181,7 +188,9 @@ router.post('/', authenticateToken, async (req, res) => {
       address,
       contact,
       images: propertyImages,
-      image: propertyImages[0] // Set first image as main image for backward compatibility
+      image: propertyImages[0], // Set first image as main image for backward compatibility
+      ownerProof: req.body.ownerProof,
+      propertyProof: req.body.propertyProof
     });
 
     await property.save();
