@@ -32,22 +32,31 @@ const MyPropertyStatus = () => {
   if (loading) return <Spinner animation="border" className="d-block mx-auto my-5" />;
   if (error) return <Alert variant="danger">{error}</Alert>;
 
+  // Sort: pending first, then rejected, then verified
+  const sortedProperties = [...properties].sort((a, b) => {
+    const order = { pending: 0, rejected: 1, verified: 2 };
+    return (order[a.verificationStatus] ?? 3) - (order[b.verificationStatus] ?? 3);
+  });
   return (
     <Container className="py-4">
       <h2 className="mb-4">My Property Status</h2>
       <Row>
-        {properties.length === 0 && <Col><Alert variant="info">No properties found.</Alert></Col>}
-        {properties.map(property => {
+        {sortedProperties.length === 0 && <Col><Alert variant="info">No properties found.</Alert></Col>}
+        {sortedProperties.map(property => {
           const latestLog = property.verificationLog && property.verificationLog.length > 0
             ? property.verificationLog[property.verificationLog.length - 1]
             : null;
           return (
             <Col md={6} key={property._id} className="mb-4">
-              <Card>
+              <Card border={property.verificationStatus === 'pending' ? 'warning' : property.verificationStatus === 'rejected' ? 'danger' : 'success'}>
                 <Card.Body>
-                  <h5>{property.title}</h5>
+                  <div className="d-flex align-items-center mb-2">
+                    <h5 className="mb-0 me-2">{property.title}</h5>
+                    {property.verificationStatus === 'pending' && <Badge bg="warning" text="dark" className="ms-1">Pending</Badge>}
+                    {property.verificationStatus === 'verified' && <Badge bg="success" className="ms-1">Verified</Badge>}
+                    {property.verificationStatus === 'rejected' && <Badge bg="danger" className="ms-1">Rejected</Badge>}
+                  </div>
                   <p><strong>Category:</strong> {property.category}</p>
-                  <p><strong>Status:</strong> <Badge bg={statusColor[property.verificationStatus] || 'secondary'}>{property.verificationStatus.toUpperCase()}</Badge></p>
                   {latestLog && (
                     <>
                       <p><strong>Admin Remark:</strong> {latestLog.note || '—'}</p>

@@ -31,7 +31,7 @@ export const api = {
     update: (id, data) => axios.put(`/api/properties/${id}`, data),
     disable: (id) => axios.patch(`/api/properties/${id}/disable`),
     enable: (id) => axios.patch(`/api/properties/${id}/enable`),
-    getUserProperties: () => axios.get('/api/properties/user/my-properties'),
+  getUserProperties: (params) => axios.get('/api/properties/user/my-properties', { params }),
   getPropertyBookings: (id) => axios.get(`/api/properties/${id}/bookings`),
   getBookedDates: (id) => axios.get(`/api/properties/${id}/booked-dates`),
   },
