@@ -2,6 +2,7 @@ const express = require('express');
 const User = require('../models/User');
 const Property = require('../models/Property');
 const Booking = require('../models/Booking');
+const Notification = require('../models/Notification');
 const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
@@ -78,6 +79,17 @@ router.patch('/properties/:id/verify', authenticateToken, requireAdmin, async (r
     property.verificationStatus = status;
     property.verificationLog.push({ status, date: new Date(), adminId: req.userId, note });
     await property.save();
+
+    // Notify property owner
+    await Notification.create({
+      userId: property.ownerId,
+      type: 'property_verification',
+      message:
+        status === 'verified'
+          ? `Your property "${property.title}" has been verified.`
+          : `Your property "${property.title}" has been rejected. Note: ${note}`
+    });
+
     res.json({ success: true, message: `Property ${status}` });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
