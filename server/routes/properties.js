@@ -3,6 +3,7 @@
 const express = require('express');
 const Property = require('../models/Property');
 const Booking = require('../models/Booking');
+const Notification = require('../models/Notification');
 const { authenticateToken, optionalAuth } = require('../middleware/auth');
 
 const router = express.Router();
@@ -195,6 +196,19 @@ router.post('/', authenticateToken, async (req, res) => {
 
     await property.save();
     await property.populate('ownerId', 'name email');
+
+
+    // Notify all admins about the new property
+    const User = require('../models/User');
+    const admins = await User.find({ role: 'admin' });
+    const notifications = admins.map(admin => ({
+      userId: admin._id,
+      type: 'property_creation',
+      message: `New property "${property.title}" added by ${property.ownerId.name} pending verification.`
+    }));
+    if (notifications.length) {
+      await Notification.insertMany(notifications);
+    }
 
     res.status(201).json({
       message: 'Property added successfully',
