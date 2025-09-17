@@ -55,6 +55,9 @@ const Navbar = () => {
                     <NavDropdown.Item as={Link} to="/manage-properties">
                       Manage Properties
                     </NavDropdown.Item>
+                    <NavDropdown.Item as={Link} to="/my-property-status">
+                      My Property Status
+                    </NavDropdown.Item>
                   </NavDropdown>
                 </>
               )}

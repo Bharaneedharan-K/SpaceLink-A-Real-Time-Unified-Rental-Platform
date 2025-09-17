@@ -212,9 +212,11 @@ router.post('/', authenticateToken, async (req, res) => {
 // Get user's properties (protected)
 router.get('/user/my-properties', authenticateToken, async (req, res) => {
   try {
-    const properties = await Property.find({ ownerId: req.userId })
-      .sort({ createdAt: -1 });
-
+    let filter = { ownerId: req.userId };
+    if (!req.query.all) {
+      filter.verificationStatus = 'verified';
+    }
+    const properties = await Property.find(filter).sort({ createdAt: -1 });
     res.json(properties);
   } catch (error) {
     console.error('Get user properties error:', error);

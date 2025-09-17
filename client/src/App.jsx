@@ -14,6 +14,7 @@ import MyBookings from './pages/MyBookings'
 import AddProperty from './pages/AddProperty'
 import ManageProperties from './pages/ManageProperties'
 import Profile from './pages/Profile'
+import MyPropertyStatus from './pages/MyPropertyStatus'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -77,6 +78,14 @@ function App() {
                       <ManageProperties />
                     </ProtectedRoute>
                   } 
+                />
+                <Route
+                  path="/my-property-status"
+                  element={
+                    <ProtectedRoute>
+                      <MyPropertyStatus />
+                    </ProtectedRoute>
+                  }
                 />
                 <Route 
                   path="/profile" 
