@@ -75,7 +75,8 @@ const Navbar = () => {
             padding: '0 24px',
             height: '60px',
             display: 'flex',
-            alignItems: 'center'
+            alignItems: 'center',
+            position: 'relative'
           }}
         >
           {/* LEFT SIDE - BRAND ONLY */}
@@ -121,6 +122,57 @@ const Navbar = () => {
 
           {/* SPACER TO PUSH EVERYTHING RIGHT */}
           <div style={{ flex: 1 }}></div>
+          {/* Notification icon for mobile view only */}
+          {isAuthenticated && (
+            <div className="navbar-mobile-notification">
+              <Button
+                variant="outline-light"
+                onClick={() => setSidebarOpen(true)}
+                aria-label="Notifications"
+                style={{ 
+                  border: 'none',
+                  background: 'transparent',
+                  borderRadius: '6px',
+                  padding: '8px',
+                  color: '#6b7280',
+                  transition: 'all 0.15s ease',
+                  position: 'relative',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '32px',
+                  height: '32px',
+                  minWidth: '32px'
+                }}
+              >
+                <BellIcon />
+                {unreadCount > 0 && (
+                  <Badge
+                    style={{
+                      position: 'absolute',
+                      top: '1px',
+                      right: '1px',
+                      background: '#ef4444',
+                      color: 'white',
+                      minWidth: '16px',
+                      height: '16px',
+                      fontSize: '0.65rem',
+                      padding: '0 4px',
+                      borderRadius: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: '600',
+                      border: '1.5px solid white',
+                      zIndex: 2
+                    }}
+                  >
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </Badge>
+                )}
+              </Button>
+            </div>
+          )}
 
           {/* Toggle Button */}
           <BootstrapNavbar.Toggle 
@@ -136,7 +188,7 @@ const Navbar = () => {
 
           <BootstrapNavbar.Collapse id="basic-navbar-nav" style={{ flexGrow: 0 }}>
             {/* RIGHT SIDE - ALL NAVIGATION */}
-            <Nav className="align-items-center" style={{ gap: '8px', flexDirection: 'row' }}>
+            <Nav className="align-items-center navbar-nav-responsive">
               
               {/* NAVIGATION LINKS - FIXED LOGIC */}
               {isAuthenticated && user?.role === 'admin' && (
@@ -574,6 +626,53 @@ const Navbar = () => {
       
       {/* Professional CSS */}
       <style jsx>{`
+        /* Show notification icon only in mobile navbar header */
+        .navbar-mobile-notification {
+          display: none;
+        }
+        @media (max-width: 991.98px) {
+          .navbar-mobile-notification {
+            display: flex !important;
+            align-items: center;
+            margin-left: 8px;
+          }
+          /* Hide notification button inside collapsed menu */
+          .navbar-nav-responsive .btn {
+            display: none !important;
+          }
+          /* Profile dropdown proportional styling */
+          .navbar-nav-responsive .dropdown-menu {
+            width: 92% !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            text-align: center !important;
+            border-radius: 16px !important;
+            padding: 18px 0 !important;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important;
+          }
+          .navbar-nav-responsive .dropdown-menu .dropdown-header {
+            font-size: 1.1rem !important;
+            font-weight: 700 !important;
+            padding: 12px 0 !important;
+            border-bottom: 1px solid #f3f4f6 !important;
+            margin-bottom: 8px !important;
+          }
+          .navbar-nav-responsive .dropdown-menu .dropdown-item {
+            font-size: 1rem !important;
+            padding: 14px 0 !important;
+            border-radius: 10px !important;
+            margin: 4px 0 !important;
+            font-weight: 600 !important;
+            color: #374151 !important;
+            transition: background 0.15s;
+          }
+          .navbar-nav-responsive .dropdown-menu .dropdown-item:active,
+          .navbar-nav-responsive .dropdown-menu .dropdown-item:focus,
+          .navbar-nav-responsive .dropdown-menu .dropdown-item:hover {
+            background: #f3f4f6 !important;
+            color: #111827 !important;
+          }
+        }
         .dropdown-menu {
           background: white !important;
           border: 1px solid rgba(0, 0, 0, 0.08) !important;
@@ -583,38 +682,69 @@ const Navbar = () => {
           margin-top: 8px !important;
           min-width: 180px !important;
         }
-        
         .dropdown-toggle::after {
           display: none !important;
         }
-        
         .navbar-toggler:focus {
           box-shadow: none !important;
         }
-        
         .dropdown-toggle {
           background: transparent !important;
           border: none !important;
           padding: 0 !important;
           margin: 0 !important;
         }
-        
+        /* Mobile responsive nav - proportional spacing and neat alignment */
         @media (max-width: 991.98px) {
           .navbar-collapse {
-            padding-top: 1rem !important;
+            padding-top: 2rem !important;
             border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
-            margin-top: 1rem !important;
+            margin-top: 1.5rem !important;
+            background: #fff !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
           }
-          
-          .navbar-collapse .nav {
+          .navbar-nav-responsive {
             flex-direction: column !important;
-            align-items: stretch !important;
-            gap: 4px !important;
+            align-items: center !important;
+            gap: 20px !important;
+            padding-bottom: 2rem !important;
           }
-          
-          .navbar-collapse .nav-link {
-            text-align: left !important;
-            width: 100% !important;
+          .navbar-nav-responsive .nav-link,
+          .navbar-nav-responsive .dropdown-toggle {
+            width: 90% !important;
+            text-align: center !important;
+            min-height: 56px !important;
+            font-size: 1.15rem !important;
+            padding: 18px 24px !important;
+            color: #1e293b !important;
+            background: #fff !important;
+            font-weight: 600 !important;
+            text-shadow: none !important;
+            border-radius: 10px !important;
+            margin-bottom: 4px !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            display: block !important;
+          }
+          .navbar-nav-responsive .dropdown-menu {
+            position: static !important;
+            box-shadow: none !important;
+            margin-top: 0 !important;
+            background: #fff !important;
+            border-radius: 10px !important;
+            width: 90% !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            text-align: center !important;
+          }
+          .navbar-nav-responsive .btn,
+          .navbar-nav-responsive .badge {
+            min-width: 48px !important;
+            min-height: 48px !important;
+            font-size: 1.2rem !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            display: block !important;
           }
         }
       `}</style>
