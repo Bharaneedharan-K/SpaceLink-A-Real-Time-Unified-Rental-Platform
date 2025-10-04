@@ -27,7 +27,11 @@ const Login = () => {
       });
       if (res.data.success) {
         await googleLogin(res.data.token, res.data.user); // sets token and fetches profile
-        navigate('/find-property');
+        if (res.data.user && res.data.user.role === 'admin') {
+          navigate('/admin/dashboard');
+        } else {
+          navigate('/find-property');
+        }
       } else {
         setError(res.data.message || 'Google login failed');
       }
@@ -78,9 +82,12 @@ const Login = () => {
     
     try {
       const result = await login(formData.email, formData.password);
-      
       if (result.success) {
-        navigate('/find-property');
+        if (result.user && result.user.role === 'admin') {
+          navigate('/admin/dashboard');
+        } else {
+          navigate('/find-property');
+        }
       } else {
         setError(result.message || 'Login failed');
       }
