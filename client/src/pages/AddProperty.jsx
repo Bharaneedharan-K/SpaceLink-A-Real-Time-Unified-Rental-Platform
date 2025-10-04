@@ -1,9 +1,27 @@
 import React, { useState, useRef, useEffect } from 'react';
+import Select from 'react-select';
 import { Container, Row, Col, Card, Form, Button, Alert, Spinner, Badge } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { api, handleApiError, categories, convertImageToBase64 } from '../utils/api';
 
 const AddProperty = () => {
+  // Major Indian states
+  const majorStates = [
+    'Andhra Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Delhi', 'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh',
+    'Jharkhand', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Odisha', 'Punjab', 'Rajasthan',
+    'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal'
+  ];
+  // Major Indian cities
+  const majorCities = [
+    'Mumbai', 'Delhi', 'Bengaluru', 'Hyderabad', 'Ahmedabad', 'Chennai', 'Kolkata', 'Pune', 'Jaipur', 'Lucknow',
+    'Kanpur', 'Nagpur', 'Indore', 'Thane', 'Bhopal', 'Visakhapatnam', 'Patna', 'Vadodara', 'Ghaziabad', 'Ludhiana',
+    'Agra', 'Nashik', 'Faridabad', 'Meerut', 'Rajkot', 'Kalyan-Dombivali', 'Vasai-Virar', 'Varanasi', 'Srinagar',
+    'Aurangabad', 'Dhanbad', 'Amritsar', 'Navi Mumbai', 'Allahabad', 'Ranchi', 'Howrah', 'Coimbatore', 'Jabalpur',
+    'Gwalior', 'Vijayawada', 'Jodhpur', 'Madurai', 'Raipur', 'Kota', 'Guwahati', 'Chandigarh', 'Solapur', 'Hubli-Dharwad'
+  ];
+  // Convert to react-select options
+  const stateOptions = majorStates.map(s => ({ value: s, label: s }));
+  const cityOptions = majorCities.map(c => ({ value: c, label: c }));
   const navigate = useNavigate();
   
   const [formData, setFormData] = useState({
@@ -235,9 +253,17 @@ const AddProperty = () => {
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    
-    if (name.includes('address.')) {
+    const { name, value } = e.target || {};
+    if (name === 'address.city' || name === 'address.state') {
+      // For react-select, value is option.value
+      setFormData({
+        ...formData,
+        address: {
+          ...formData.address,
+          [name.split('.')[1]]: value
+        }
+      });
+    } else if (name && name.includes('address.')) {
       const addressField = name.split('.')[1];
       setFormData({
         ...formData,
@@ -252,7 +278,7 @@ const AddProperty = () => {
         ...formData,
         rentType: selectedOptions
       });
-    } else {
+    } else if (name) {
       setFormData({
         ...formData,
         [name]: value
@@ -757,14 +783,15 @@ const AddProperty = () => {
                               <Icon name="mapPin" size={16} />
                               City *
                             </Form.Label>
-                            <Form.Control
-                              type="text"
+                            <Select
+                              options={cityOptions}
                               name="address.city"
-                              value={formData.address.city}
-                              onChange={handleInputChange}
-                              placeholder="City"
+                              value={cityOptions.find(opt => opt.value === formData.address.city) || null}
+                              onChange={opt => handleInputChange({ target: { name: 'address.city', value: opt.value } })}
+                              placeholder="Select city..."
+                              isSearchable
                               required
-                              className="form-input"
+                              classNamePrefix="react-select"
                             />
                           </Form.Group>
                         </Col>
@@ -774,14 +801,15 @@ const AddProperty = () => {
                               <Icon name="mapPin" size={16} />
                               State *
                             </Form.Label>
-                            <Form.Control
-                              type="text"
+                            <Select
+                              options={stateOptions}
                               name="address.state"
-                              value={formData.address.state}
-                              onChange={handleInputChange}
-                              placeholder="State"
+                              value={stateOptions.find(opt => opt.value === formData.address.state) || null}
+                              onChange={opt => handleInputChange({ target: { name: 'address.state', value: opt.value } })}
+                              placeholder="Select state..."
+                              isSearchable
                               required
-                              className="form-input"
+                              classNamePrefix="react-select"
                             />
                           </Form.Group>
                         </Col>
