@@ -65,6 +65,20 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Google login: set token, fetch profile, update user
+  const googleLogin = async (token, user) => {
+    localStorage.setItem('token', token);
+    setToken(token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    try {
+      // Always fetch latest profile after Google login
+      const profileRes = await axios.get('/api/users/profile');
+      setUser(profileRes.data);
+    } catch (error) {
+      setUser(user); // fallback to user from backend if profile fetch fails
+    }
+  };
+
   const register = async (userData) => {
     try {
       const response = await axios.post('/api/auth/register', userData);
@@ -102,6 +116,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     updateUser,
+    googleLogin,
     isAuthenticated: !!user
   };
 

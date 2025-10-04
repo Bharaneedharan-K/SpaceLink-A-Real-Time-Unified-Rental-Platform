@@ -1,8 +1,62 @@
 const express = require('express');
+const router = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const verifyGoogleToken = require('../utils/googleVerify');
+// Google OAuth Login
+router.post('/google', async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) {
+      return res.status(400).json({ success: false, message: 'No Google token provided' });
+    }
 
-const router = express.Router();
+    // Verify Google token
+    let payload;
+    try {
+      payload = await verifyGoogleToken(token);
+    } catch (err) {
+      return res.status(401).json({ success: false, message: 'Invalid Google token' });
+    }
+
+    // Find or create user
+    let user = await User.findOne({ email: payload.email });
+    if (!user) {
+      user = new User({
+        email: payload.email,
+        name: payload.name || payload.given_name || 'Google User',
+        password: Math.random().toString(36).slice(-8), // random password, not used
+        profileComplete: false,
+        role: 'user'
+      });
+      await user.save();
+    }
+
+    // Generate JWT token
+    const jwtToken = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      success: true,
+      message: 'Google login successful',
+      token: jwtToken,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        profileComplete: user.profileComplete
+      }
+    });
+  } catch (error) {
+    console.error('Google OAuth error:', error);
+    res.status(500).json({ success: false, message: 'Server error during Google login' });
+  }
+});
+
+
 
 // Register
 router.post('/register', async (req, res) => {

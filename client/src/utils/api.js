@@ -2,6 +2,7 @@ import axios from 'axios';
 
 // Base URL for API - Updated to your friend's new URL
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://spacelink-a-real-time-unified-rental-at83.onrender.com';
+//const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 // Configure axios defaults
 axios.defaults.baseURL = API_BASE_URL;

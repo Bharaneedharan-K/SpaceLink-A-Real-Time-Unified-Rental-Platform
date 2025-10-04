@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import axios from 'axios';
 import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -12,7 +14,29 @@ const Login = () => {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const { login } = useAuth();
+  const { login, updateUser, googleLogin } = useAuth();
+  const [googleLoading, setGoogleLoading] = useState(false);
+  // Google OAuth handler
+  const handleGoogleLoginSuccess = async (credentialResponse) => {
+    setGoogleLoading(true);
+    setError('');
+    try {
+      // Send Google token to backend for verification
+      const res = await axios.post('/api/auth/google', {
+        token: credentialResponse.credential
+      });
+      if (res.data.success) {
+        await googleLogin(res.data.token, res.data.user); // sets token and fetches profile
+        navigate('/find-property');
+      } else {
+        setError(res.data.message || 'Google login failed');
+      }
+    } catch (err) {
+      setError('Google authentication failed. Please try again.');
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
   const navigate = useNavigate();
   const containerRef = useRef(null);
 
@@ -144,6 +168,7 @@ const Login = () => {
                     </Alert>
                   )}
 
+
                   {/* Login Form */}
                   <Form onSubmit={handleSubmit} className="login-form">
                     <Form.Group className="form-group">
@@ -213,6 +238,30 @@ const Login = () => {
                       )}
                     </Button>
                   </Form>
+
+                  {/* Separator */}
+                  <div style={{ display: 'flex', alignItems: 'center', margin: '18px 0' }}>
+                    <div style={{ flex: 1, height: '1px', background: '#e5e7eb' }} />
+                    <span style={{ margin: '0 12px', color: '#6b7280', fontWeight: 500, fontSize: '0.95rem' }}>or</span>
+                    <div style={{ flex: 1, height: '1px', background: '#e5e7eb' }} />
+                  </div>
+
+                  {/* Google OAuth Login */}
+                  <div style={{ margin: '18px 0', textAlign: 'center' }}>
+                    <GoogleOAuthProvider clientId="471401453680-e7h4dbp214igd7bpa2agt29j4uspts2m.apps.googleusercontent.com">
+                      <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <GoogleLogin
+                          onSuccess={handleGoogleLoginSuccess}
+                          onError={() => setError('Google authentication failed.')}
+                          theme="outline"
+                          shape="pill"
+                          text="continue_with"
+                          disabled={googleLoading}
+                          style={{ width: '90%', minWidth: '220px', maxWidth: '340px', height: '44px', fontSize: '1rem', fontWeight: 600, borderRadius: '24px', boxShadow: '0 2px 8px rgba(124,58,237,0.08)', border: '2.5px solid #111' }}
+                        />
+                      </div>
+                    </GoogleOAuthProvider>
+                  </div>
 
                   {/* Footer */}
                   <div className="login-footer">
