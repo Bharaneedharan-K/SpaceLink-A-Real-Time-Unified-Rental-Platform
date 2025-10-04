@@ -1,13 +1,43 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import Select from 'react-select';
 import { Container, Row, Col, Form, Spinner, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { api, handleApiError, formatPrice, getImageUrl } from '../utils/api';
 
 const FindProperty = () => {
+  // Import categories from api.js if available, else define here
+  const categories = {
+    'Property Rentals': { subtypes: ['Apartment', 'Flat', 'House', 'Villa', 'Studio'] },
+    'Commercial': { subtypes: ['Office', 'Shop', 'Warehouse', 'Meeting room'] },
+    'Land': { subtypes: ['Agricultural', 'Commercial Plot'] },
+    'Parking': { subtypes: ['Car', 'Bike', 'Garage'] },
+    'Event': { subtypes: ['Banquet', 'Gardens', 'Halls'] },
+    'Turf': { subtypes: ['Football', 'Cricket', 'Multi-sport'] }
+  };
+  // Major Indian states and cities (from AddProperty)
+  const majorStates = [
+    'Andhra Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Delhi', 'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh',
+    'Jharkhand', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Odisha', 'Punjab', 'Rajasthan',
+    'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal'
+  ];
+  const majorCities = [
+    'Mumbai', 'Delhi', 'Bengaluru', 'Hyderabad', 'Ahmedabad', 'Chennai', 'Kolkata', 'Pune', 'Jaipur', 'Lucknow',
+    'Kanpur', 'Nagpur', 'Indore', 'Thane', 'Bhopal', 'Visakhapatnam', 'Patna', 'Vadodara', 'Ghaziabad', 'Ludhiana',
+    'Agra', 'Nashik', 'Faridabad', 'Meerut', 'Rajkot', 'Kalyan-Dombivali', 'Vasai-Virar', 'Varanasi', 'Srinagar',
+    'Aurangabad', 'Dhanbad', 'Amritsar', 'Navi Mumbai', 'Allahabad', 'Ranchi', 'Howrah', 'Coimbatore', 'Jabalpur',
+    'Gwalior', 'Vijayawada', 'Jodhpur', 'Madurai', 'Raipur', 'Kota', 'Guwahati', 'Chandigarh', 'Solapur', 'Hubli-Dharwad'
+  ];
+  // Convert to react-select options
+  const categoryOptions = Object.keys(categories).map(c => ({ value: c, label: c }));
+  const cityOptions = majorCities.map(c => ({ value: c, label: c }));
+  const stateOptions = majorStates.map(s => ({ value: s, label: s }));
+  const [subtypeOptions, setSubtypeOptions] = useState([]);
+
   // ✅ ALL YOUR LOGIC - ZERO CHANGES
   const navigate = useNavigate();
   const [properties, setProperties] = useState([]);
   const [filteredProperties, setFilteredProperties] = useState([]);
+  const [filtersApplied, setFiltersApplied] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -15,8 +45,33 @@ const FindProperty = () => {
     location: '',
     propertyType: '',
     priceRange: '',
-    bedrooms: ''
+    bedrooms: '',
+    category: '',
+    subtype: '',
+    city: '',
+    state: ''
   });
+
+  // Update subtype options when category filter changes
+  useEffect(() => {
+    const selectedCat = filters.category || '';
+    if (selectedCat && categories[selectedCat]) {
+      setSubtypeOptions(categories[selectedCat].subtypes.map(st => ({ value: st, label: st })));
+    } else {
+      setSubtypeOptions([]);
+    }
+  }, [filters.category]);
+
+
+  // Update subtype options when category filter changes
+  useEffect(() => {
+    const selectedCat = filters.category || '';
+    if (selectedCat && categories[selectedCat]) {
+      setSubtypeOptions(categories[selectedCat].subtypes.map(st => ({ value: st, label: st })));
+    } else {
+      setSubtypeOptions([]);
+    }
+  }, [filters.category]);
   const [viewMode, setViewMode] = useState('grid');
 
   const indianLocations = [
@@ -137,14 +192,22 @@ const FindProperty = () => {
   };
 
   useEffect(() => {
-    fetchProperties();
+  fetchProperties();
+  setFiltersApplied(false);
   }, []);
 
   const applyFilters = useCallback(() => {
     if (!Array.isArray(properties)) return;
     
     let filtered = [...properties];
-    
+        // If no filters/search, show zero results after pressing Search/Find
+        const isFilterActive =
+          searchQuery.trim() ||
+          Object.values(filters).some(f => f && f !== "All Categories" && f !== "All Locations");
+        if (!isFilterActive) {
+          setFilteredProperties([]);
+          return;
+        }
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(property => {
@@ -158,27 +221,35 @@ const FindProperty = () => {
           property.subtype,
           ...(property.amenities || [])
         ].filter(Boolean);
-        
         return searchFields.some(field => 
           field.toString().toLowerCase().includes(query)
         );
       });
     }
-    
     if (filters.location && filters.location !== "All Locations") {
       filtered = filtered.filter(property => {
-        const locationText = `${property.address.city} ${property.address.state} ${property.address.street}`.toLowerCase();
+        const locationText = `${property.address?.city || ''} ${property.address?.state || ''} ${property.address?.street || ''}`.toLowerCase();
         return locationText.includes(filters.location.toLowerCase());
       });
     }
-    
     if (filters.propertyType && filters.propertyType !== "All Categories") {
       filtered = filtered.filter(property =>
-        property.category === filters.propertyType || 
-        property.subtype === filters.propertyType
+        property.category?.toLowerCase() === filters.propertyType.toLowerCase() || 
+        property.subtype?.toLowerCase() === filters.propertyType.toLowerCase()
       );
     }
-    
+    if (filters.category) {
+      filtered = filtered.filter(property => property.category?.toLowerCase().includes(filters.category.toLowerCase()));
+    }
+    if (filters.subtype) {
+      filtered = filtered.filter(property => property.subtype?.toLowerCase().includes(filters.subtype.toLowerCase()));
+    }
+    if (filters.city) {
+      filtered = filtered.filter(property => property.address?.city?.toLowerCase().includes(filters.city.toLowerCase()));
+    }
+    if (filters.state) {
+      filtered = filtered.filter(property => property.address?.state?.toLowerCase().includes(filters.state.toLowerCase()));
+    }
     if (filters.priceRange) {
       const [min, max] = filters.priceRange.split('-').map(Number);
       filtered = filtered.filter(property => {
@@ -186,7 +257,6 @@ const FindProperty = () => {
         return price >= min && (max ? price <= max : true);
       });
     }
-    
     if (filters.bedrooms) {
       const minBedrooms = parseInt(filters.bedrooms);
       filtered = filtered.filter(property => {
@@ -196,17 +266,20 @@ const FindProperty = () => {
         return true;
       });
     }
-    
     setFilteredProperties(filtered);
   }, [properties, searchQuery, filters]);
 
   useEffect(() => {
-    const timeoutId = setTimeout(applyFilters, 300);
-    return () => clearTimeout(timeoutId);
-  }, [applyFilters]);
+    if (filtersApplied) {
+      applyFilters();
+    } else {
+      setFilteredProperties(properties);
+    }
+  }, [applyFilters, properties, filtersApplied]);
 
   const handleFilterChange = (filterType, value) => {
-    setFilters(prev => ({ ...prev, [filterType]: value }));
+  setFilters(prev => ({ ...prev, [filterType]: value }));
+  setFiltersApplied(false);
   };
 
   const clearFilters = () => {
@@ -351,55 +424,80 @@ const FindProperty = () => {
                   type="text"
                   placeholder="Search by location, type, or keywords..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => { setSearchQuery(e.target.value); setFiltersApplied(false); }}
                   className="search-input"
                 />
               </div>
-              
               <div className="filters-section">
                 <div className="filters-header">
                   <span className="filters-icon">✨</span>
                   <span className="filters-title">SMART FILTERS</span>
                 </div>
-                
+                {/* Category Filter */}
                 <div className="filter-group">
                   <div className="filter-header">
-                    <span className="filter-icon">📍</span>
-                    <span className="filter-label">LOCATION</span>
-                    <span className="filter-count">{indianLocations.length - 1} cities</span>
+                    <span className="filter-icon">🏷️</span>
+                    <span className="filter-label">CATEGORY</span>
                   </div>
-                  <Form.Select
-                    value={filters.location}
-                    onChange={(e) => handleFilterChange('location', e.target.value)}
-                    className="filter-select"
-                  >
-                    {indianLocations.map((location, index) => (
-                      <option key={index} value={location === "All Locations" ? "" : location}>
-                        {location}
-                      </option>
-                    ))}
-                  </Form.Select>
+                  <Select
+                    options={categoryOptions}
+                    name="category"
+                    value={categoryOptions.find(opt => opt.value === filters.category) || null}
+                    onChange={opt => handleFilterChange('category', opt ? opt.value : '')}
+                    placeholder="(Optional) Select category"
+                    isSearchable
+                    classNamePrefix="react-select"
+                  />
                 </div>
-                
+                {/* Subtype Filter */}
                 <div className="filter-group">
                   <div className="filter-header">
-                    <span className="filter-icon">🏠</span>
-                    <span className="filter-label">PROPERTY TYPE</span>
-                    <span className="filter-count">6 categories</span>
+                    <span className="filter-icon">📂</span>
+                    <span className="filter-label">SUBTYPE</span>
                   </div>
-                  <Form.Select
-                    value={filters.propertyType}
-                    onChange={(e) => handleFilterChange('propertyType', e.target.value)}
-                    className="filter-select"
-                  >
-                    {propertyTypes.map((type, index) => (
-                      <option key={index} value={type === "All Categories" ? "" : type}>
-                        {type}
-                      </option>
-                    ))}
-                  </Form.Select>
+                  <Select
+                    options={subtypeOptions}
+                    name="subtype"
+                    value={subtypeOptions.find(opt => opt.value === filters.subtype) || null}
+                    onChange={opt => handleFilterChange('subtype', opt ? opt.value : '')}
+                    placeholder="(Optional) Select subtype"
+                    isSearchable
+                    isDisabled={subtypeOptions.length === 0}
+                    classNamePrefix="react-select"
+                  />
                 </div>
-                
+                {/* City Filter */}
+                <div className="filter-group">
+                  <div className="filter-header">
+                    <span className="filter-icon">🏙️</span>
+                    <span className="filter-label">CITY</span>
+                  </div>
+                  <Select
+                    options={cityOptions}
+                    name="city"
+                    value={cityOptions.find(opt => opt.value === filters.city) || null}
+                    onChange={opt => handleFilterChange('city', opt ? opt.value : '')}
+                    placeholder="(Optional) Select city"
+                    isSearchable
+                    classNamePrefix="react-select"
+                  />
+                </div>
+                {/* State Filter */}
+                <div className="filter-group">
+                  <div className="filter-header">
+                    <span className="filter-icon">🌏</span>
+                    <span className="filter-label">STATE</span>
+                  </div>
+                  <Select
+                    options={stateOptions}
+                    name="state"
+                    value={stateOptions.find(opt => opt.value === filters.state) || null}
+                    onChange={opt => handleFilterChange('state', opt ? opt.value : '')}
+                    placeholder="(Optional) Select state"
+                    isSearchable
+                    classNamePrefix="react-select"
+                  />
+                </div>
                 <div className="filter-group">
                   <div className="filter-header">
                     <span className="filter-icon">💰</span>
@@ -421,7 +519,6 @@ const FindProperty = () => {
                     <option value="50000-999999">₹50,000+</option>
                   </Form.Select>
                 </div>
-                
                 {shouldShowBedroomFilter() && (
                   <div className="filter-group">
                     <div className="filter-header">
@@ -443,7 +540,13 @@ const FindProperty = () => {
                     </Form.Select>
                   </div>
                 )}
-                
+                <button
+                  onClick={() => setFiltersApplied(true)}
+                  className="search-filters-btn"
+                  style={{ width: '100%', background: '#7c3aed', color: 'white', borderRadius: '8px', padding: '0.75rem', fontWeight: 600, marginBottom: '1rem', border: 'none', fontSize: '1rem', letterSpacing: '0.02em' }}
+                >
+                  🔎 Search / Find
+                </button>
                 <button
                   onClick={clearFilters}
                   disabled={getActiveFiltersCount() === 0}
@@ -451,7 +554,6 @@ const FindProperty = () => {
                 >
                   ✕ Clear All Filters
                 </button>
-                
                 <div className="counter-box">
                   <div className="counter-number">{filteredProperties.length}</div>
                   <div className="counter-text">Available</div>
@@ -677,14 +779,14 @@ const FindProperty = () => {
         }
         
         .sidebar-column {
-          padding-right: 1.5rem;
+          padding-right: 2.5rem;
+          padding-left: 2.5rem;
         }
-        
         .main-column {
           background: white;
           border-radius: 12px;
           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-          padding: 2rem;
+          padding: 2.5rem;
         }
         
         .search-section {
@@ -1255,62 +1357,67 @@ const FindProperty = () => {
           .sidebar-column {
             margin-bottom: 2rem;
             padding-right: 0;
+            padding-left: 1rem;
           }
-          
+          .main-column {
+            padding-left: 1rem;
+            padding-right: 1rem;
+          }
           .results-header {
             flex-direction: column;
             align-items: flex-start;
           }
-          
           .view-controls {
             width: 100%;
           }
-          
           .view-btn {
             flex: 1;
           }
         }
-        
         @media (max-width: 768px) {
           .dashboard-section {
             padding: 1rem 0;
           }
-          
-          .main-column {
-            padding: 1rem;
+          .sidebar-column {
+            padding-left: 1.25rem;
+            padding-right: 1.25rem;
           }
-          
+          .main-column {
+            padding-left: 1.25rem;
+            padding-right: 1.25rem;
+          }
           .hero-section {
             padding: calc(3.5rem + 80px) 0 3rem 0;
           }
-          
           .super-glassy-actions {
             flex-direction: column;
             gap: 8px;
           }
-          
           .grid-card {
             height: 400px;
           }
-          
           .grid-card .card-image-section {
             height: 160px;
           }
-          
           .list-card {
             height: 220px;
           }
         }
-        
         @media (max-width: 576px) {
           .hero-section {
             padding: calc(3.5rem + 85px) 0 3rem 0;
           }
-          
+          .sidebar-column {
+            padding-left: 1rem;
+            padding-right: 1rem;
+          }
+          .main-column {
+            padding-left: 1rem;
+            padding-right: 1rem;
+          }
           .property-col {
             margin-bottom: 1.25rem;
           }
-          
           .super-glassy-btn {
             padding: 8px 12px;
             font-size: 0.75rem;
