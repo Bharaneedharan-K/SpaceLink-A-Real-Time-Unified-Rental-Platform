@@ -70,6 +70,7 @@ const Navbar = () => {
       >
         <Container 
           fluid 
+          className="navbar-container"
           style={{ 
             maxWidth: '1200px',
             padding: '0 24px',
@@ -186,9 +187,9 @@ const Navbar = () => {
             }}
           />
 
-          <BootstrapNavbar.Collapse id="basic-navbar-nav" style={{ flexGrow: 0 }}>
+          <BootstrapNavbar.Collapse id="basic-navbar-nav">
             {/* RIGHT SIDE - ALL NAVIGATION */}
-            <Nav className="align-items-center navbar-nav-responsive">
+            <Nav className="ms-auto align-items-lg-center navbar-nav-responsive">
               
               {/* NAVIGATION LINKS - FIXED LOGIC */}
               {isAuthenticated && user?.role === 'admin' && (
@@ -269,32 +270,45 @@ const Navbar = () => {
                     My Bookings
                   </Nav.Link>
                   
-                  {/* Clean Properties Dropdown */}
+                  {/* Properties Dropdown - Matches Profile Style */}
                   <NavDropdown 
-                    title="Properties"
+                    title={
+                      <span style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        color: (location.pathname.includes('/add-property') || 
+                               location.pathname.includes('/manage-properties') || 
+                               location.pathname.includes('/my-property-status')) ? '#6366f1' : '#6b7280',
+                        fontWeight: (location.pathname.includes('/add-property') || 
+                                    location.pathname.includes('/manage-properties') || 
+                                    location.pathname.includes('/my-property-status')) ? '600' : '500',
+                        fontSize: '0.875rem',
+                        padding: '8px 16px',
+                        borderRadius: '6px',
+                        transition: 'all 0.15s ease',
+                        height: '36px',
+                        whiteSpace: 'nowrap',
+                        background: 'transparent'
+                      }}>
+                        Properties
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" style={{ marginTop: '1px' }}>
+                          <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                        </svg>
+                      </span>
+                    }
                     id="property-dropdown"
-                    style={{
-                      padding: '8px 16px',
-                      borderRadius: '6px',
-                      height: '36px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      color: (location.pathname.includes('/add-property') || 
-                             location.pathname.includes('/manage-properties') || 
-                             location.pathname.includes('/my-property-status')) ? '#6366f1' : '#6b7280',
-                      fontWeight: (location.pathname.includes('/add-property') || 
-                                  location.pathname.includes('/manage-properties') || 
-                                  location.pathname.includes('/my-property-status')) ? '600' : '500'
-                    }}
+                    align="end"
                   >
+                    {/* Clean Menu Items */}
                     <NavDropdown.Item 
                       as={Link} 
                       to="/add-property"
                       style={{
                         padding: '10px 16px',
                         fontSize: '0.875rem',
-                        fontWeight: isActivePath('/add-property') ? '600' : '500',
-                        color: isActivePath('/add-property') ? '#6366f1' : '#374151',
+                        fontWeight: '500',
+                        color: '#374151',
                         borderRadius: '6px',
                         margin: '2px 6px',
                         textDecoration: 'none',
@@ -302,28 +316,25 @@ const Navbar = () => {
                         border: 'none'
                       }}
                       onMouseEnter={(e) => {
-                        if (!isActivePath('/add-property')) {
-                          e.currentTarget.style.color = '#111827';
-                          e.currentTarget.style.background = '#f3f4f6';
-                        }
+                        e.currentTarget.style.background = '#f3f4f6';
+                        e.currentTarget.style.color = '#111827';
                       }}
                       onMouseLeave={(e) => {
-                        if (!isActivePath('/add-property')) {
-                          e.currentTarget.style.color = '#374151';
-                          e.currentTarget.style.background = 'transparent';
-                        }
+                        e.currentTarget.style.background = 'transparent';
+                        e.currentTarget.style.color = '#374151';
                       }}
                     >
                       Add Property
                     </NavDropdown.Item>
+                    
                     <NavDropdown.Item 
                       as={Link} 
                       to="/manage-properties"
                       style={{
                         padding: '10px 16px',
                         fontSize: '0.875rem',
-                        fontWeight: isActivePath('/manage-properties') ? '600' : '500',
-                        color: isActivePath('/manage-properties') ? '#6366f1' : '#374151',
+                        fontWeight: '500',
+                        color: '#374151',
                         borderRadius: '6px',
                         margin: '2px 6px',
                         textDecoration: 'none',
@@ -331,28 +342,25 @@ const Navbar = () => {
                         border: 'none'
                       }}
                       onMouseEnter={(e) => {
-                        if (!isActivePath('/manage-properties')) {
-                          e.currentTarget.style.color = '#111827';
-                          e.currentTarget.style.background = '#f3f4f6';
-                        }
+                        e.currentTarget.style.background = '#f3f4f6';
+                        e.currentTarget.style.color = '#111827';
                       }}
                       onMouseLeave={(e) => {
-                        if (!isActivePath('/manage-properties')) {
-                          e.currentTarget.style.color = '#374151';
-                          e.currentTarget.style.background = 'transparent';
-                        }
+                        e.currentTarget.style.background = 'transparent';
+                        e.currentTarget.style.color = '#374151';
                       }}
                     >
                       Manage Properties
                     </NavDropdown.Item>
+                    
                     <NavDropdown.Item 
                       as={Link} 
                       to="/my-property-status"
                       style={{
                         padding: '10px 16px',
                         fontSize: '0.875rem',
-                        fontWeight: isActivePath('/my-property-status') ? '600' : '500',
-                        color: isActivePath('/my-property-status') ? '#6366f1' : '#374151',
+                        fontWeight: '500',
+                        color: '#374151',
                         borderRadius: '6px',
                         margin: '2px 6px',
                         textDecoration: 'none',
@@ -360,16 +368,12 @@ const Navbar = () => {
                         border: 'none'
                       }}
                       onMouseEnter={(e) => {
-                        if (!isActivePath('/my-property-status')) {
-                          e.currentTarget.style.color = '#111827';
-                          e.currentTarget.style.background = '#f3f4f6';
-                        }
+                        e.currentTarget.style.background = '#f3f4f6';
+                        e.currentTarget.style.color = '#111827';
                       }}
                       onMouseLeave={(e) => {
-                        if (!isActivePath('/my-property-status')) {
-                          e.currentTarget.style.color = '#374151';
-                          e.currentTarget.style.background = 'transparent';
-                        }
+                        e.currentTarget.style.background = 'transparent';
+                        e.currentTarget.style.color = '#374151';
                       }}
                     >
                       Property Status
@@ -470,21 +474,30 @@ const Navbar = () => {
                 <NavDropdown 
                   title={
                     <div style={{
-                      width: '32px',
-                      height: '32px',
-                      background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                      borderRadius: '50%',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      flexShrink: 0,
-                      cursor: 'pointer',
-                      marginLeft: '16px' // Proper spacing from notification
+                      gap: '6px',
+                      marginLeft: '16px'
                     }}>
-                      {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                      <div style={{
+                        width: '32px',
+                        height: '32px',
+                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'white',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        flexShrink: 0,
+                        cursor: 'pointer'
+                      }}>
+                        {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                      </div>
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" style={{ color: '#6b7280' }}>
+                        <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                      </svg>
                     </div>
                   }
                   id="user-dropdown" 
@@ -626,53 +639,12 @@ const Navbar = () => {
       
       {/* Professional CSS */}
       <style jsx>{`
-        /* Show notification icon only in mobile navbar header */
+        /* Base styles */
         .navbar-mobile-notification {
           display: none;
         }
-        @media (max-width: 991.98px) {
-          .navbar-mobile-notification {
-            display: flex !important;
-            align-items: center;
-            margin-left: 8px;
-          }
-          /* Hide notification button inside collapsed menu */
-          .navbar-nav-responsive .btn {
-            display: none !important;
-          }
-          /* Profile dropdown proportional styling */
-          .navbar-nav-responsive .dropdown-menu {
-            width: 92% !important;
-            margin-left: auto !important;
-            margin-right: auto !important;
-            text-align: center !important;
-            border-radius: 16px !important;
-            padding: 18px 0 !important;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important;
-          }
-          .navbar-nav-responsive .dropdown-menu .dropdown-header {
-            font-size: 1.1rem !important;
-            font-weight: 700 !important;
-            padding: 12px 0 !important;
-            border-bottom: 1px solid #f3f4f6 !important;
-            margin-bottom: 8px !important;
-          }
-          .navbar-nav-responsive .dropdown-menu .dropdown-item {
-            font-size: 1rem !important;
-            padding: 14px 0 !important;
-            border-radius: 10px !important;
-            margin: 4px 0 !important;
-            font-weight: 600 !important;
-            color: #374151 !important;
-            transition: background 0.15s;
-          }
-          .navbar-nav-responsive .dropdown-menu .dropdown-item:active,
-          .navbar-nav-responsive .dropdown-menu .dropdown-item:focus,
-          .navbar-nav-responsive .dropdown-menu .dropdown-item:hover {
-            background: #f3f4f6 !important;
-            color: #111827 !important;
-          }
-        }
+        
+        /* Desktop dropdown styling */
         .dropdown-menu {
           background: white !important;
           border: 1px solid rgba(0, 0, 0, 0.08) !important;
@@ -682,70 +654,334 @@ const Navbar = () => {
           margin-top: 8px !important;
           min-width: 180px !important;
         }
+        
         .dropdown-toggle::after {
           display: none !important;
         }
+        
+        .navbar-toggler {
+          border: 1px solid rgba(0, 0, 0, 0.1);
+          border-radius: 6px;
+          padding: 6px 10px;
+        }
+        
         .navbar-toggler:focus {
           box-shadow: none !important;
+          outline: none !important;
         }
+        
         .dropdown-toggle {
           background: transparent !important;
           border: none !important;
-          padding: 0 !important;
-          margin: 0 !important;
         }
-        /* Mobile responsive nav - proportional spacing and neat alignment */
+        
+        /* Mobile Responsive - Industry Standard */
         @media (max-width: 991.98px) {
+          /* Container fixes */
+          .navbar-container {
+            padding: 0 16px !important;
+          }
+          
+          /* Show mobile notification icon in header */
+          .navbar-mobile-notification {
+            display: flex !important;
+            align-items: center;
+            margin-left: auto;
+            margin-right: 12px;
+          }
+          
+          /* Navbar collapse - clean dropdown appearance */
+          #basic-navbar-nav {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-height: calc(100vh - 60px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+          }
+          
           .navbar-collapse {
-            padding-top: 2rem !important;
-            border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
-            margin-top: 1.5rem !important;
-            background: #fff !important;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            padding: 20px 16px !important;
           }
+          
+          /* Navigation container */
           .navbar-nav-responsive {
+            width: 100%;
+            display: flex !important;
             flex-direction: column !important;
-            align-items: center !important;
-            gap: 20px !important;
-            padding-bottom: 2rem !important;
+            gap: 10px !important;
+            align-items: stretch !important;
           }
+          
+          /* All nav items base styling */
+          .navbar-nav-responsive > * {
+            width: 100% !important;
+            margin: 0 !important;
+          }
+          
+          /* Nav links - industry standard mobile button style */
+          .navbar-nav-responsive .nav-link {
+            width: 100% !important;
+            min-height: 48px !important;
+            padding: 14px 20px !important;
+            margin: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+            font-size: 1rem !important;
+            font-weight: 600 !important;
+            color: #374151 !important;
+            background: #f9fafb !important;
+            border-radius: 10px !important;
+            border: 1px solid transparent !important;
+            transition: all 0.2s ease !important;
+            white-space: nowrap !important;
+            text-decoration: none !important;
+          }
+          
+          .navbar-nav-responsive .nav-link:hover,
+          .navbar-nav-responsive .nav-link:focus {
+            background: #f3f4f6 !important;
+            border-color: rgba(99, 102, 241, 0.2) !important;
+            color: #6366f1 !important;
+          }
+          
+          .navbar-nav-responsive .nav-link:active {
+            background: #e5e7eb !important;
+            transform: scale(0.98);
+          }
+          
+          /* Dropdown wrapper */
+          .navbar-nav-responsive .nav-item.dropdown,
+          .navbar-nav-responsive .dropdown {
+            width: 100% !important;
+            margin: 0 !important;
+            position: relative !important;
+          }
+          
+          /* Dropdown toggle button */
+          .navbar-nav-responsive .dropdown-toggle {
+            width: 100% !important;
+            min-height: 48px !important;
+            padding: 14px 20px !important;
+            margin: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+            font-size: 1rem !important;
+            font-weight: 600 !important;
+            color: #374151 !important;
+            background: #f9fafb !important;
+            border-radius: 10px !important;
+            border: 1px solid transparent !important;
+            transition: all 0.2s ease !important;
+            white-space: nowrap !important;
+          }
+          
+          .navbar-nav-responsive .dropdown-toggle:hover,
+          .navbar-nav-responsive .dropdown-toggle:focus {
+            background: #f3f4f6 !important;
+            border-color: rgba(99, 102, 241, 0.2) !important;
+            color: #6366f1 !important;
+          }
+          
+          .navbar-nav-responsive .dropdown.show .dropdown-toggle {
+            background: #f3f4f6 !important;
+            color: #6366f1 !important;
+          }
+          
+          /* Dropdown menu - seamless integration - FORCE FULL WIDTH */
+          .navbar-nav-responsive .dropdown-menu,
+          .navbar-nav-responsive .dropdown-menu[data-bs-popper] {
+            position: static !important;
+            float: none !important;
+            width: 100% !important;
+            margin: 8px 0 0 0 !important;
+            padding: 12px 0 !important;
+            border: none !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            transform: none !important;
+            left: auto !important;
+            right: auto !important;
+            top: auto !important;
+            bottom: auto !important;
+            inset: auto !important;
+          }
+          
+          /* Additional override for Bootstrap popper positioning */
+          .navbar-nav-responsive .dropdown-menu[style] {
+            position: static !important;
+            transform: none !important;
+            inset: auto !important;
+            margin: 8px 0 0 0 !important;
+          }
+          
+          .navbar-nav-responsive .dropdown-menu .dropdown-item {
+            width: 100% !important;
+            min-height: 44px !important;
+            padding: 12px 20px !important;
+            margin: 0 !important;
+            font-size: 0.95rem !important;
+            font-weight: 500 !important;
+            color: #374151 !important;
+            background: transparent !important;
+            border-radius: 0 !important;
+            text-align: center !important;
+            transition: all 0.2s ease !important;
+            white-space: nowrap !important;
+            border: none !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+          }
+          
+          .navbar-nav-responsive .dropdown-menu .dropdown-item:last-child {
+            border-bottom: none !important;
+          }
+          
+          .navbar-nav-responsive .dropdown-menu .dropdown-item:hover,
+          .navbar-nav-responsive .dropdown-menu .dropdown-item:focus {
+            background: #f9fafb !important;
+            color: #111827 !important;
+          }
+          
+          .navbar-nav-responsive .dropdown-menu .dropdown-item:active {
+            background: #f3f4f6 !important;
+          }
+          
+          /* Profile dropdown header */
+          .navbar-nav-responsive .dropdown-menu > div:first-child {
+            padding: 12px 16px 8px !important;
+            margin-bottom: 6px !important;
+            font-size: 0.95rem !important;
+            font-weight: 600 !important;
+            color: #111827 !important;
+            text-align: center !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+          }
+          
+          /* Dropdown divider */
+          .navbar-nav-responsive .dropdown-divider {
+            margin: 6px 8px !important;
+            border-color: rgba(0, 0, 0, 0.06) !important;
+          }
+          
+          /* Hide desktop elements */
+          .navbar-nav-responsive > div[style*="width: 1px"],
+          .navbar-nav-responsive > div[style*="height: 20px"],
+          .navbar-nav-responsive > button[aria-label="Notifications"] {
+            display: none !important;
+          }
+          
+          /* Login/Register buttons */
+          .navbar-nav-responsive .nav-link[href="/login"] {
+            background: white !important;
+            border: 1px solid #e5e7eb !important;
+            color: #374151 !important;
+          }
+          
+          .navbar-nav-responsive .nav-link[href="/login"]:hover {
+            background: #f9fafb !important;
+            border-color: #6366f1 !important;
+            color: #6366f1 !important;
+          }
+          
+          .navbar-nav-responsive .nav-link[href="/register"] {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+            color: white !important;
+            border: none !important;
+            font-weight: 700 !important;
+          }
+          
+          .navbar-nav-responsive .nav-link[href="/register"]:hover {
+            background: linear-gradient(135deg, #5856eb 0%, #7c3aed 100%) !important;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
+          }
+          
+          /* Profile avatar in dropdown toggle */
+          .navbar-nav-responsive .dropdown-toggle > div {
+            margin: 0 auto !important;
+          }
+        }
+        
+        /* Small mobile devices */
+        @media (max-width: 575.98px) {
+          .navbar-container {
+            padding: 0 12px !important;
+          }
+          
+          .navbar-brand {
+            font-size: 1.15rem !important;
+          }
+          
+          .navbar-brand > div:first-child {
+            width: 26px !important;
+            height: 26px !important;
+          }
+          
+          .navbar-collapse {
+            padding: 16px 12px !important;
+          }
+          
           .navbar-nav-responsive .nav-link,
           .navbar-nav-responsive .dropdown-toggle {
-            width: 90% !important;
-            text-align: center !important;
-            min-height: 56px !important;
-            font-size: 1.15rem !important;
-            padding: 18px 24px !important;
-            color: #1e293b !important;
-            background: #fff !important;
-            font-weight: 600 !important;
-            text-shadow: none !important;
-            border-radius: 10px !important;
-            margin-bottom: 4px !important;
-            margin-left: auto !important;
-            margin-right: auto !important;
-            display: block !important;
+            min-height: 44px !important;
+            padding: 12px 16px !important;
+            font-size: 0.95rem !important;
           }
-          .navbar-nav-responsive .dropdown-menu {
+          
+          .navbar-nav-responsive .dropdown-menu .dropdown-item {
+            min-height: 40px !important;
+            padding: 10px 14px !important;
+            font-size: 0.9rem !important;
+          }
+        }
+        
+        /* Landscape orientation */
+        @media (max-width: 991.98px) and (orientation: landscape) {
+          #basic-navbar-nav {
+            max-height: 80vh !important;
+          }
+          
+          .navbar-nav-responsive {
+            gap: 8px !important;
+          }
+          
+          .navbar-nav-responsive .nav-link,
+          .navbar-nav-responsive .dropdown-toggle {
+            min-height: 42px !important;
+            padding: 10px 16px !important;
+            font-size: 0.9rem !important;
+          }
+        }
+        
+        /* Tablet and up - keep desktop behavior */
+        @media (min-width: 992px) {
+          .navbar-nav-responsive {
+            flex-direction: row !important;
+            gap: 0 !important;
+          }
+          
+          #basic-navbar-nav {
             position: static !important;
             box-shadow: none !important;
-            margin-top: 0 !important;
-            background: #fff !important;
-            border-radius: 10px !important;
-            width: 90% !important;
-            margin-left: auto !important;
-            margin-right: auto !important;
-            text-align: center !important;
+            border: none !important;
           }
-          .navbar-nav-responsive .btn,
-          .navbar-nav-responsive .badge {
-            min-width: 48px !important;
-            min-height: 48px !important;
-            font-size: 1.2rem !important;
-            margin-left: auto !important;
-            margin-right: auto !important;
-            display: block !important;
-          }
+        }
+        
+        /* Smooth transitions */
+        .navbar-collapse.collapsing {
+          transition: height 0.3s ease !important;
+        }
+        
+        .navbar-collapse.show {
+          transition: height 0.3s ease !important;
         }
       `}</style>
     </>
