@@ -444,7 +444,7 @@ const FindProperty = () => {
                     name="category"
                     value={categoryOptions.find(opt => opt.value === filters.category) || null}
                     onChange={opt => handleFilterChange('category', opt ? opt.value : '')}
-                    placeholder="(Optional) Select category"
+                    placeholder="Select category"
                     isSearchable
                     classNamePrefix="react-select"
                   />
@@ -460,7 +460,7 @@ const FindProperty = () => {
                     name="subtype"
                     value={subtypeOptions.find(opt => opt.value === filters.subtype) || null}
                     onChange={opt => handleFilterChange('subtype', opt ? opt.value : '')}
-                    placeholder="(Optional) Select subtype"
+                    placeholder="Select subtype"
                     isSearchable
                     isDisabled={subtypeOptions.length === 0}
                     classNamePrefix="react-select"
@@ -477,7 +477,7 @@ const FindProperty = () => {
                     name="city"
                     value={cityOptions.find(opt => opt.value === filters.city) || null}
                     onChange={opt => handleFilterChange('city', opt ? opt.value : '')}
-                    placeholder="(Optional) Select city"
+                    placeholder="Select city"
                     isSearchable
                     classNamePrefix="react-select"
                   />
@@ -493,7 +493,7 @@ const FindProperty = () => {
                     name="state"
                     value={stateOptions.find(opt => opt.value === filters.state) || null}
                     onChange={opt => handleFilterChange('state', opt ? opt.value : '')}
-                    placeholder="(Optional) Select state"
+                    placeholder="Select state"
                     isSearchable
                     classNamePrefix="react-select"
                   />
