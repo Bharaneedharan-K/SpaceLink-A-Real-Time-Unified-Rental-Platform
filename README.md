@@ -165,10 +165,142 @@ curl -X POST http://localhost:5000/api/auth/login \
 List properties (filters)
 
 ```bash
-curl "http://localhost:5000/api/properties?city=Chennai&category=Apartment&search=sea"
+
+# SpaceLink Rental Platform
+
+[![Live Demo](https://img.shields.io/badge/Live-Demo-blue)](https://spacelink-rental.vercel.app)
+
+> **Live Project:** [https://spacelink-rental.vercel.app](https://spacelink-rental.vercel.app)
+
+SpaceLink is a modern MERN-stack rental marketplace for property owners and renters. It features advanced property filtering, secure authentication, booking management, and a responsive UI.
+
+---
+
+## 🚀 Features
+
+- Property listing, search, and filtering (category, subtype, city, state, price)
+- Owner dashboard: add/edit/manage properties, view bookings
+- Booking system with real-time availability
+- JWT authentication (email/password + Google OAuth)
+- Admin dashboard for property verification
+- Responsive, mobile-first UI (React + Bootstrap)
+
+---
+
+## 🏗️ Project Structure
+
 ```
 
-Create booking (authenticated)
+spacelink/
+├── client/ # React frontend (Vite + Bootstrap)
+├── server/ # Node.js backend (Express + MongoDB)
+
+````
+
+---
+
+## ⚡ Quick Start
+
+**Prerequisites:** Node.js >= 16, npm/yarn, MongoDB
+
+1. Clone the repo
+   ```bash
+   git clone <repo-url>
+   cd spacelink
+````
+
+2. Install backend & start API
+   ```bash
+   cd server
+   npm install
+   npm run dev
+   ```
+3. Install frontend & start client
+   ```bash
+   cd ../client
+   npm install
+   npm run dev
+   ```
+4. Open [http://localhost:5173](http://localhost:5173)
+
+---
+
+## 🔑 Environment Variables
+
+**server/.env**
+
+```
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/spacelink
+JWT_SECRET=your_jwt_secret
+GOOGLE_CLIENT_ID=471401453680-e7h4dbp214igd7bpa2agt29j4uspts2m.apps.googleusercontent.com
+```
+
+**client/.env**
+
+```
+VITE_API_URL=http://localhost:5000/api
+```
+
+---
+
+## 📚 API Endpoints (Summary)
+
+All responses:
+
+```json
+{ "success": true/false, "message": string, "data": any }
+```
+
+**Auth**
+
+- POST `/api/auth/register` — Register user
+- POST `/api/auth/login` — Login (returns JWT)
+- POST `/api/auth/google` — Google OAuth login
+
+**Users**
+
+- GET `/api/users/me` — Get profile
+- PUT `/api/users/me` — Update profile
+
+**Properties**
+
+- GET `/api/properties` — List properties (filters: category, subtype, city, state, price, search)
+- GET `/api/properties/:id` — Property details
+- POST `/api/properties` — Add property
+- PUT `/api/properties/:id` — Edit property
+- DELETE `/api/properties/:id` — Delete property
+
+**Bookings**
+
+- POST `/api/bookings` — Create booking
+- GET `/api/bookings` — List user bookings
+- PATCH `/api/bookings/:id/cancel` — Cancel booking
+
+**Admin**
+
+- GET `/api/admin/properties/pending` — Pending properties
+- PUT `/api/admin/properties/:id/verify` — Verify/reject property
+
+---
+
+## 🧑‍💻 Example Requests
+
+Login:
+
+```bash
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"password"}'
+```
+
+List properties:
+
+```bash
+curl "http://localhost:5000/api/properties?city=Chennai&category=Apartment"
+```
+
+Create booking:
 
 ```bash
 curl -X POST http://localhost:5000/api/bookings \
@@ -177,9 +309,11 @@ curl -X POST http://localhost:5000/api/bookings \
   -d '{"propertyId":"<id>","fromDate":"2025-10-10","toDate":"2025-10-15"}'
 ```
 
-## Database schemas (short)
+---
 
-Users
+## 🗄️ Database Schemas (Short)
+
+**User**
 
 ```js
 {
@@ -187,13 +321,13 @@ Users
 }
 ```
 
-Properties
+**Property**
 
 ```js
 { ownerId, category, subtype, title, description, price, address: { city, state }, image, isDisabled }
 ```
 
-Bookings
+**Booking**
 
 ```js
 {
@@ -201,31 +335,21 @@ Bookings
 }
 ```
 
-## Development notes & tips
+---
 
-- Filters: frontend `FindProperty` uses controlled react-select dropdowns. Filtering is applied when the "Search" button is pressed.
-- Navbar: responsive mobile-first menu, dropdowns are styled to display inline in mobile collapsed view.
-- Authentication: tokens are stored in localStorage by default.
-
-## Recommended next steps
-
-- Add test coverage (Jest + Supertest for server; React Testing Library for client)
-- Add CI workflow (GitHub Actions) for lint/test/build
-- Move images to cloud storage (S3/Cloudinary) for production
-
-## Contributing
+## 📝 Contributing
 
 1. Fork the repo
 2. Create a branch: `git checkout -b feature/your-feature`
 3. Commit and push
-4. Open a PR and describe the change
+4. Open a PR
 
 ---
 
-If you'd like, I can also:
+## 📣 Project Links
 
-- Add a dedicated `API.md` with full request/response examples and sample payloads
-- Add a Postman collection or OpenAPI spec
+- **Live Demo:** [https://spacelink-rental.vercel.app](https://spacelink-rental.vercel.app)
+- **API Docs:** _coming soon_
 
 ---
 
