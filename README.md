@@ -19,263 +19,214 @@ spacelink/
 - **Categories**: Property Rentals, Commercial, Land, Parking, Events
 - **Smart Filtering**: Real-time search by category, price, location, availability
 - **Owner Tools**: Add, edit, disable properties, view bookings
-- **Image Support**: Base64 image storage with preview
 
-### 👤 User System
+# SpaceLink
 
-- **JWT Authentication**: Secure login/register system
-- **Profile Management**: Complete profile required for bookings
-- **Protected Routes**: Authentication-based access control
+SpaceLink is a MERN-stack rental marketplace that connects property owners with renters. It includes property listings, advanced filtering, property management tools for owners, a booking system, notifications, and an admin moderation dashboard.
 
-### 📅 Booking System
+This README summarizes the project, how to run it locally, important API endpoints, environment variables, and recommended next steps.
 
-- **Real-time Availability**: Check property availability for date ranges
-- **Multiple Rent Types**: Hourly, Monthly, Yearly rentals
-- **Booking Management**: View, track, and cancel bookings
-- **Payment**: On-spot payment system
+## Table of contents
 
-### 🎨 UI/UX
+- About
+- Quick start
+- Project structure
+- Environment variables
+- API endpoints
+- Database schema
+- Development notes & tips
+- Contributing
 
-- **Responsive Design**: Bootstrap-based mobile-first design
-- **Modern Interface**: Clean, intuitive user experience
-- **Real-time Updates**: Dynamic content loading and filtering
+## About
 
-## 🚀 Quick Start
+- Frontend: React 18 (Vite) + Bootstrap 5 + react-select
+- Backend: Node.js + Express + MongoDB (Mongoose)
+- Auth: JWT + bcryptjs, Google OAuth support
+- Goal: Lightweight rental marketplace with easy owner workflows and simple booking flow.
 
-### Prerequisites
+## Quick start (local development)
 
-- Node.js (v20.12.2 or higher)
-- MongoDB (local or Atlas)
+Prerequisites
+
+- Node.js (>= 16)
 - npm or yarn
+- MongoDB (local or Atlas)
 
-### Installation
+Install & run
 
-1. **Clone and setup the project:**
+1. Clone the repository
 
-```bash
-git clone <repository-url>
+```powershell
+git clone <repo-url>
 cd spacelink
 ```
 
-2. **Backend Setup:**
+2. Install server dependencies and start the API
 
-```bash
+```powershell
 cd server
 npm install
+npm run dev
 ```
 
-3. **Frontend Setup:**
+3. Install client dependencies and start the frontend
 
-```bash
+```powershell
 cd ../client
 npm install
-```
-
-4. **Environment Configuration:**
-   Create `server/.env`:
-
-```env
-PORT=5000
-MONGODB_URI=mongodb://localhost:27017/spacelink
-JWT_SECRET=your_jwt_secret_key_here
-NODE_ENV=development
-```
-
-Create `client/.env`:
-
-```env
-VITE_API_URL=http://localhost:5000
-```
-
-### Running the Application
-
-1. **Start the backend server:**
-
-```bash
-cd server
 npm run dev
 ```
 
-2. **Start the frontend (in a new terminal):**
-
-```bash
-cd client
-npm run dev
-```
-
-3. **Access the application:**
+Default URLs
 
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:5000
 
-## 📊 Database Schema
+## Project structure (high level)
 
-### Users Collection
+```
+spacelink/
+├── client/                 # React frontend
+├── server/                 # Node/Express backend
+   ├── models/              # Mongoose models
+   ├── routes/              # Express routes
+   ├── middleware/          # Auth, error handling
+   └── index.js
+```
 
-```javascript
+## Environment variables
+
+Create a `.env` in `server/` and `client/` (examples below):
+
+server/.env
+
+```
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/spacelink
+JWT_SECRET=your_jwt_secret
+GOOGLE_CLIENT_ID=471401453680-e7h4dbp214igd7bpa2agt29j4uspts2m.apps.googleusercontent.com
+```
+
+client/.env
+
+```
+VITE_API_URL=http://localhost:5000/api
+```
+
+## API endpoints (summary)
+
+All responses follow the standard envelope:
+
+```json
+{ "success": boolean, "message": string, "data": any }
+```
+
+Authentication
+
+- POST /api/auth/register — register a new user
+- POST /api/auth/login — login (returns JWT)
+- POST /api/auth/google — login/register using Google ID token
+
+Users
+
+- GET /api/users/me — get profile (protected)
+- PUT /api/users/me — update profile (protected)
+
+Properties
+
+- GET /api/properties — list properties (supports filters and pagination)
+  - query params: category, subtype, city, state, search, minPrice, maxPrice, page, limit
+- GET /api/properties/:id — get single property details
+- POST /api/properties — create property (protected)
+- PUT /api/properties/:id — update property (protected: owner/admin)
+- DELETE /api/properties/:id — delete property (protected: owner/admin)
+
+Bookings
+
+- POST /api/bookings — create a booking (protected)
+- GET /api/bookings — get current user's bookings (protected)
+- PATCH /api/bookings/:id/cancel — cancel booking (protected)
+
+Admin
+
+- GET /api/admin/properties/pending — list pending properties (admin)
+- PUT /api/admin/properties/:id/verify — verify or reject property (admin)
+
+## Example requests
+
+Login (email/password)
+
+```bash
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"password"}'
+```
+
+List properties (filters)
+
+```bash
+curl "http://localhost:5000/api/properties?city=Chennai&category=Apartment&search=sea"
+```
+
+Create booking (authenticated)
+
+```bash
+curl -X POST http://localhost:5000/api/bookings \
+  -H "Authorization: Bearer <TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{"propertyId":"<id>","fromDate":"2025-10-10","toDate":"2025-10-15"}'
+```
+
+## Database schemas (short)
+
+Users
+
+```js
 {
-  _id: ObjectId,
-  email: String (unique),
-  password: String (hashed),
-  name: String,
-  contact: String,
-  address: String,
-  city: String,
-  state: String,
-  pincode: String,
-  profileComplete: Boolean,
-  timestamps: true
+  email, password(hashed), name, city, state, profileComplete;
 }
 ```
 
-### Properties Collection
+Properties
 
-```javascript
+```js
+{ ownerId, category, subtype, title, description, price, address: { city, state }, image, isDisabled }
+```
+
+Bookings
+
+```js
 {
-  _id: ObjectId,
-  ownerId: ObjectId (ref: User),
-  category: String (enum),
-  subtype: String,
-  title: String,
-  description: String,
-  price: Number,
-  size: String,
-  rentType: [String],
-  address: {
-    street: String,
-    city: String,
-    state: String,
-    pincode: String
-  },
-  contact: String,
-  image: String (Base64),
-  isDisabled: Boolean,
-  timestamps: true
+  userId, propertyId, fromDate, toDate, totalPrice, status;
 }
 ```
 
-### Bookings Collection
+## Development notes & tips
 
-```javascript
-{
-  _id: ObjectId,
-  userId: ObjectId (ref: User),
-  propertyId: ObjectId (ref: Property),
-  fromDate: Date,
-  toDate: Date,
-  totalPrice: Number,
-  status: String (enum),
-  paymentMode: String,
-  bookingType: String,
-  notes: String,
-  timestamps: true
-}
-```
+- Filters: frontend `FindProperty` uses controlled react-select dropdowns. Filtering is applied when the "Search" button is pressed.
+- Navbar: responsive mobile-first menu, dropdowns are styled to display inline in mobile collapsed view.
+- Authentication: tokens are stored in localStorage by default.
 
-## 🛣️ API Endpoints
+## Recommended next steps
 
-### Authentication
+- Add test coverage (Jest + Supertest for server; React Testing Library for client)
+- Add CI workflow (GitHub Actions) for lint/test/build
+- Move images to cloud storage (S3/Cloudinary) for production
 
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - User login
-- `GET /api/auth/verify` - Verify JWT token
+## Contributing
 
-### Properties
-
-- `GET /api/properties` - Get all properties (with filters)
-- `GET /api/properties/featured` - Get featured properties
-- `GET /api/properties/:id` - Get single property
-- `POST /api/properties` - Create property (protected)
-- `PUT /api/properties/:id` - Update property (protected)
-- `PATCH /api/properties/:id/disable` - Disable property (protected)
-
-### Bookings
-
-- `POST /api/bookings` - Create booking (protected)
-- `GET /api/bookings/my-bookings` - Get user bookings (protected)
-- `PATCH /api/bookings/:id/cancel` - Cancel booking (protected)
-- `POST /api/bookings/check-availability` - Check availability
-
-### Users
-
-- `GET /api/users/profile` - Get user profile (protected)
-- `PUT /api/users/profile` - Update profile (protected)
-
-## 🏛️ Architecture
-
-### Frontend (React + Vite)
-
-- **React Router**: Client-side routing
-- **Bootstrap**: UI components and styling
-- **Axios**: HTTP client for API calls
-- **Context API**: Global state management
-
-### Backend (Node.js + Express)
-
-- **Express**: Web application framework
-- **MongoDB + Mongoose**: Database and ODM
-- **JWT**: Authentication tokens
-- **bcryptjs**: Password hashing
-- **Multer**: File upload handling
-
-## 🔒 Security Features
-
-- **JWT Authentication**: Secure token-based authentication
-- **Password Hashing**: bcrypt for password security
-- **Protected Routes**: Middleware-based route protection
-- **Input Validation**: Server-side validation for all inputs
-- **CORS**: Cross-origin resource sharing configuration
-
-## 📱 Category Rules
-
-| Category         | Subtypes                      | Rent Types     | Description            |
-| ---------------- | ----------------------------- | -------------- | ---------------------- |
-| Property Rentals | Apartments, Flats, Houses     | Monthly/Yearly | Residential properties |
-| Commercial       | Offices, Shops, Warehouses    | Monthly/Yearly | Business spaces        |
-| Land             | Agricultural, Commercial Plot | Yearly only    | Land rentals           |
-| Parking          | Car, Bike, Garage             | Monthly only   | Parking spaces         |
-| Event            | Banquet, Gardens, Halls       | Hourly only    | Event venues           |
-
-## 🚀 Deployment
-
-### Backend (Render/Railway)
-
-1. Create account on Render or Railway
-2. Connect GitHub repository
-3. Set environment variables
-4. Deploy automatically
-
-### Frontend (Vercel/Netlify)
-
-1. Build the project: `npm run build`
-2. Deploy the `dist` folder
-3. Configure environment variables
-
-### Database (MongoDB Atlas)
-
-1. Create MongoDB Atlas account
-2. Create cluster and database
-3. Update MONGODB_URI in environment
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open Pull Request
-
-## 📄 License
-
-This project is licensed under the ISC License.
-
-## 👥 Support
-
-For support and questions:
-
-- Create an issue in the repository
-- Contact the development team
+1. Fork the repo
+2. Create a branch: `git checkout -b feature/your-feature`
+3. Commit and push
+4. Open a PR and describe the change
 
 ---
 
-**SpaceLink** - Connecting spaces with people, one rental at a time! 🏠✨
+If you'd like, I can also:
+
+- Add a dedicated `API.md` with full request/response examples and sample payloads
+- Add a Postman collection or OpenAPI spec
+
+---
+
+SpaceLink — connecting spaces with people.
