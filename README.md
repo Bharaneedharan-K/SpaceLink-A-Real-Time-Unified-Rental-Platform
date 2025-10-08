@@ -24,26 +24,11 @@ spacelink/
 
 SpaceLink is a MERN-stack rental marketplace that connects property owners with renters. It includes property listings, advanced filtering, property management tools for owners, a booking system, notifications, and an admin moderation dashboard.
 
-This README summarizes the project, how to run it locally, important API endpoints, environment variables, and recommended next steps.
-
-## Table of contents
-
-- About
-- Quick start
-- Project structure
-- Environment variables
-- API endpoints
-- Database schema
-- Development notes & tips
-- Contributing
-
-# SpaceLink Rental Platform
+SpaceLink is a modern, full-featured rental marketplace built with the MERN stack. It empowers property owners to list, manage, and rent out spaces, while providing renters with a seamless search and booking experience.
 
 [![Live Demo](https://img.shields.io/badge/Live-Demo-blue)](https://spacelink-rental.vercel.app)
 
 > **Live Project:** [https://spacelink-rental.vercel.app](https://spacelink-rental.vercel.app)
-
-SpaceLink is a modern, full-featured rental marketplace built with the MERN stack. It empowers property owners to list, manage, and rent out spaces, while providing renters with a seamless search and booking experience.
 
 ---
 
