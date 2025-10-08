@@ -1,32 +1,8 @@
 # SpaceLink - Real-Time Unified Rental Platform
 
-A comprehensive MERN stack application for property rentals, featuring real-time filtering, user authentication, booking system, and property management.
-
-## 🏗️ Project Structure
-
-```
-spacelink/
-├── client/          # React frontend (Vite + Bootstrap)
-├── server/          # Node.js backend (Express + MongoDB)
-├── README.md
-└── package.json     # Root package.json for workspace
-```
-
-## ✨ Features
-
-### 🏠 Property Management
-
-- **Categories**: Property Rentals, Commercial, Land, Parking, Events
-- **Smart Filtering**: Real-time search by category, price, location, availability
-- **Owner Tools**: Add, edit, disable properties, view bookings
-
-# SpaceLink
-
 SpaceLink is a MERN-stack rental marketplace that connects property owners with renters. It includes property listings, advanced filtering, property management tools for owners, a booking system, notifications, and an admin moderation dashboard.
 
 SpaceLink is a modern, full-featured rental marketplace built with the MERN stack. It empowers property owners to list, manage, and rent out spaces, while providing renters with a seamless search and booking experience.
-
-[![Live Demo](https://img.shields.io/badge/Live-Demo-blue)](https://spacelink-rental.vercel.app)
 
 > **Live Project:** [https://spacelink-rental.vercel.app](https://spacelink-rental.vercel.app)
 
